@@ -1,25 +1,23 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-
-const inter = Inter({ subsets: ["latin"] })
+import type { Metadata } from "next";
+import "./globals.css";
+import Sidebar from "../components/sidebar";
+import Topbar from "../components/topbar";
+import { ReactNode } from "react";
+import { AuthProvider } from "../lib/auth-context";
 
 export const metadata: Metadata = {
-  title: "CreepyGallery - Gallery of the Damned",
-  description:
-    "Enter the nether-realm of cursed photos. Share your darkest captures with fellow souls who dare to witness the unseen.",
-    generator: 'v0.dev'
-}
+  title: "CreepyGallery",
+  description: "Where shadows come to life",
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.className} bg-black text-white min-h-screen`}>{children}</body>
+    <html lang="en">
+      <body className="bg-black text-[#F8F8FF]">
+        <AuthProvider>
+          {children}
+        </AuthProvider>
+      </body>
     </html>
-  )
+  );
 }
