@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { 
   createUser, 
   findUserByEmail, 
-  hashPassword, 
   validateEmail, 
   validatePassword 
 } from '../../../../lib/auth';
@@ -37,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = findUserByEmail(email);
+    const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return NextResponse.json(
         { error: 'An account with this email already exists' },
@@ -45,9 +44,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Hash password and create user
-    const hashedPassword = await hashPassword(password);
-    const user = createUser(email, username, hashedPassword);
+    // Create user
+    const user = await createUser(email, username, password);
 
     // Return success (without password)
     const { password: _, ...userWithoutPassword } = user;

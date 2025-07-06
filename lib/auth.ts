@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { executeQuery, executeQuerySingle } from './db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
@@ -13,10 +14,6 @@ export interface User {
 export interface UserWithPassword extends User {
   password: string;
 }
-
-// In a real app, you'd use a database
-// For now, we'll use a simple in-memory store
-const users: UserWithPassword[] = [];
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
@@ -52,25 +49,40 @@ export function verifyToken(token: string): User | null {
   }
 }
 
-export function createUser(email: string, username: string, password: string): UserWithPassword {
-  const user: UserWithPassword = {
-    id: Date.now().toString(),
+export async function createUser(email: string, username: string, password: string): Promise<UserWithPassword> {
+  const id = Date.now().toString();
+  const hashedPassword = await hashPassword(password);
+  
+  await executeQuery(
+    'INSERT INTO users (id, email, username, password) VALUES ($1, $2, $3, $4)',
+    [id, email.toLowerCase(), username, hashedPassword]
+  );
+  
+  return {
+    id,
     email: email.toLowerCase(),
     username,
-    password,
+    password: hashedPassword,
     createdAt: new Date()
   };
+}
+
+export async function findUserByEmail(email: string): Promise<UserWithPassword | null> {
+  const user = await executeQuerySingle<UserWithPassword>(
+    'SELECT * FROM users WHERE email = $1',
+    [email.toLowerCase()]
+  );
   
-  users.push(user);
   return user;
 }
 
-export function findUserByEmail(email: string): UserWithPassword | undefined {
-  return users.find(user => user.email === email.toLowerCase());
-}
-
-export function findUserById(id: string): UserWithPassword | undefined {
-  return users.find(user => user.id === id);
+export async function findUserById(id: string): Promise<User | null> {
+  const user = await executeQuerySingle<UserWithPassword>(
+    'SELECT id, email, username, created_at as "createdAt" FROM users WHERE id = $1',
+    [id]
+  );
+  
+  return user;
 }
 
 export function validateEmail(email: string): boolean {
