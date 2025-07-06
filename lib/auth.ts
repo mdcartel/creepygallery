@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { executeQuery, executeQuerySingle } from './db';
+import { sqlQuery } from './db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
@@ -53,10 +53,10 @@ export async function createUser(email: string, username: string, password: stri
   const id = Date.now().toString();
   const hashedPassword = await hashPassword(password);
   
-  await executeQuery(
-    'INSERT INTO users (id, email, username, password) VALUES ($1, $2, $3, $4)',
-    [id, email.toLowerCase(), username, hashedPassword]
-  );
+  await sqlQuery`
+    INSERT INTO users (id, email, username, password) 
+    VALUES (${id}, ${email.toLowerCase()}, ${username}, ${hashedPassword})
+  `;
   
   return {
     id,
@@ -68,21 +68,20 @@ export async function createUser(email: string, username: string, password: stri
 }
 
 export async function findUserByEmail(email: string): Promise<UserWithPassword | null> {
-  const user = await executeQuerySingle<UserWithPassword>(
-    'SELECT * FROM users WHERE email = $1',
-    [email.toLowerCase()]
-  );
+  const users = await sqlQuery<UserWithPassword>`
+    SELECT * FROM users WHERE email = ${email.toLowerCase()}
+  `;
   
-  return user;
+  return users[0] || null;
 }
 
 export async function findUserById(id: string): Promise<User | null> {
-  const user = await executeQuerySingle<UserWithPassword>(
-    'SELECT id, email, username, created_at as "createdAt" FROM users WHERE id = $1',
-    [id]
-  );
+  const users = await sqlQuery<UserWithPassword>`
+    SELECT id, email, username, created_at as "createdAt" 
+    FROM users WHERE id = ${id}
+  `;
   
-  return user;
+  return users[0] || null;
 }
 
 export function validateEmail(email: string): boolean {

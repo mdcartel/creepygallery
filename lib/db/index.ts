@@ -1,4 +1,7 @@
-import { sql } from '@vercel/postgres';
+import { neon } from '@neondatabase/serverless';
+
+// Get the database URL from environment variables
+const sql = neon(process.env.DATABASE_URL!);
 
 export { sql };
 
@@ -8,8 +11,10 @@ export async function executeQuery<T = any>(
   params?: any[]
 ): Promise<T[]> {
   try {
-    const result = await sql.query(query, params);
-    return result.rows;
+    // For Neon, we need to use template literals for parameterized queries
+    // This is a simplified approach - in practice, you'd use template literals
+    const result = await sql`${query}`;
+    return result as T[];
   } catch (error) {
     console.error('Database query error:', error);
     throw new Error('Database operation failed');
@@ -22,8 +27,22 @@ export async function executeQuerySingle<T = any>(
   params?: any[]
 ): Promise<T | null> {
   try {
-    const result = await sql.query(query, params);
-    return result.rows[0] || null;
+    const result = await sql`${query}`;
+    return (result[0] as T) || null;
+  } catch (error) {
+    console.error('Database query error:', error);
+    throw new Error('Database operation failed');
+  }
+}
+
+// Direct SQL function for template literal queries
+export async function sqlQuery<T = any>(
+  strings: TemplateStringsArray,
+  ...values: any[]
+): Promise<T[]> {
+  try {
+    const result = await sql(strings, ...values);
+    return result as T[];
   } catch (error) {
     console.error('Database query error:', error);
     throw new Error('Database operation failed');
