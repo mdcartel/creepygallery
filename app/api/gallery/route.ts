@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllGalleryItems, createGalleryItem } from '../../../lib/gallery';
 import { verifyToken } from '../../../lib/auth';
-import fs from 'fs';
-import path from 'path';
 
 export async function GET() {
   try {
@@ -71,23 +69,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
-    // Generate secure filename
-    const fileExt = path.extname(file.name);
-    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}${fileExt}`;
-    const filePath = path.join(uploadsDir, fileName);
-
-    // Save file to disk
+    // For Vercel deployment, we need to use a different approach for file storage
+    // Since Vercel has a read-only filesystem, we'll convert to base64 for now
+    // In production, you'd want to use cloud storage like AWS S3, Cloudinary, etc.
+    
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    fs.writeFileSync(filePath, buffer);
-
-    const imageUrl = `/uploads/${fileName}`;
+    
+    // Convert to base64 data URL for storage (temporary solution)
+    const base64 = buffer.toString('base64');
+    const mimeType = file.type;
+    const imageUrl = `data:${mimeType};base64,${base64}`;
+    
+    // Note: This stores images as base64 in the database, which is not ideal for production
+    // For production, implement cloud storage (AWS S3, Cloudinary, Vercel Blob, etc.)
 
     // Parse tags into array
     const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
