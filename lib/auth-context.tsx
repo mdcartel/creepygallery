@@ -1,7 +1,14 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User } from './auth';
+
+// Define User interface locally to avoid importing from auth module
+interface User {
+  id: string;
+  email: string;
+  username: string;
+  createdAt: Date;
+}
 
 interface AuthContextType {
   user: User | null;

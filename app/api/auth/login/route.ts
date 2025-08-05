@@ -1,9 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { 
-  findUserByEmail, 
-  verifyPassword, 
-  generateToken 
-} from '../../../../lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,37 +12,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user by email
-    const user = await findUserByEmail(email);
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
-      );
-    }
-
-    // Verify password
-    const isValidPassword = await verifyPassword(password, user.password);
-    if (!isValidPassword) {
-      return NextResponse.json(
-        { error: 'Invalid email or password' },
-        { status: 401 }
-      );
-    }
-
-    // Generate JWT token
-    const token = generateToken(user);
-
-    // Return success with token
-    const { password: _, ...userWithoutPassword } = user;
-    
+    // Temporary response for deployment - database integration coming soon
     return NextResponse.json(
-      { 
-        message: 'Login successful',
-        user: userWithoutPassword,
-        token
-      },
-      { status: 200 }
+      { error: 'Authentication system is being set up. Please try again later.' },
+      { status: 503 }
     );
 
   } catch (error) {
