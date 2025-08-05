@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Sidebar from "../components/sidebar";
-import Topbar from "../components/topbar";
 import { ReactNode } from "react";
-import { AuthProvider } from "../lib/auth-context";
+
+import ClientLayout from "./client-layout";
 
 export const metadata: Metadata = {
   title: "CreepyGallery",
@@ -14,9 +13,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-black text-[#F8F8FF]">
-        <AuthProvider>
+        <ClientLayout>
           {children}
-        </AuthProvider>
+        </ClientLayout>
       </body>
     </html>
   );

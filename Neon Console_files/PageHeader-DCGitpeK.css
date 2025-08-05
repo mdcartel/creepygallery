@@ -1,0 +1,1 @@
+._headerDoubleCol_mw9r5_1{display:grid;grid-template-areas:"title actions" "subtitle subtitle";grid-template-rows:auto min-content;margin-bottom:20px}._headerDoubleCol_mw9r5_1:has(>._subtitle_mw9r5_11){gap:16px}._title_mw9r5_16{grid-area:title}._actions_mw9r5_20{display:flex;grid-area:actions;gap:16px;justify-content:flex-end}._subtitle_mw9r5_11{grid-area:subtitle}
