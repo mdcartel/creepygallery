@@ -6,10 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "setup-db": "node scripts/setup-database.js",
-    "test-db": "node scripts/test-database.js",
-    "create-test-user": "node scripts/create-test-user.js"
+    "lint": "next lint"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",

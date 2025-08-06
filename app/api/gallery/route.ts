@@ -36,7 +36,7 @@ function validateImageMagicNumbers(buffer: ArrayBuffer): boolean {
 export async function GET() {
   try {
     const items = await getAllGalleryItems();
-    console.log(`Fetched ${items.length} gallery items from database`);
+    // Successfully fetched gallery items
     return NextResponse.json(items);
   } catch (error) {
     console.error('Error fetching gallery items:', error);
@@ -120,7 +120,6 @@ export async function POST(request: NextRequest) {
 
     // Create gallery item
     try {
-      console.log('Creating gallery item:', { title, author: user.username, tagsArray, chillLevel, userId: user.id });
       const item = await createGalleryItem(
         title,
         imageUrl,
@@ -129,7 +128,6 @@ export async function POST(request: NextRequest) {
         chillLevel,
         user.id
       );
-      console.log('Successfully created gallery item:', item.id);
       return NextResponse.json(item, { status: 201 });
     } catch (dbError) {
       console.error('Database error creating gallery item:', dbError);

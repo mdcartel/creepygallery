@@ -1,7 +1,11 @@
 import { neon } from '@neondatabase/serverless';
 
 // Get the database URL from environment variables
-const sql = neon(process.env.DATABASE_URL!);
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required');
+}
+
+const sql = neon(process.env.DATABASE_URL);
 
 export { sql };
 
