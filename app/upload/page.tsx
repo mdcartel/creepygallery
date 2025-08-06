@@ -24,10 +24,7 @@ export default function UploadPage() {
     
     // Get auth token from localStorage
     const token = localStorage.getItem('auth-token');
-    
-    // For now, allow uploads without authentication for testing
-    // In production, you'd want to require authentication
-    if (!token && user) {
+    if (!token || !user) {
       setMessage("You must be logged in to upload images.");
       setLoading(false);
       return;
@@ -53,15 +50,12 @@ export default function UploadPage() {
     formData.append("chillLevel", chillLevel.toString());
 
     try {
-      const headers: Record<string, string> = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
       const res = await fetch("/api/gallery", {
         method: "POST",
         body: formData,
-        headers,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
       });
       let data = null;
       try {
