@@ -6,13 +6,16 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "setup-db": "node scripts/setup-database.js",
+    "test-db": "node scripts/test-database.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
     "@types/bcryptjs": "^3.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^3.0.2",
+    "dotenv": "^16.3.1",
     "jsonwebtoken": "^9.0.2",
     "next": "15.3.4",
     "react": "^19.0.0",

@@ -11,12 +11,12 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS gallery_items (
   id SERIAL PRIMARY KEY,
   title VARCHAR(255) NOT NULL,
-  image_url VARCHAR(500),
+  image_url TEXT,
   date_uploaded TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   downloads INTEGER DEFAULT 0,
   author VARCHAR(255) NOT NULL,
   tags TEXT[],
-  chill_level INTEGER CHECK (chill_level >= 1 AND chill_level <= 5),
+  chill_level INTEGER CHECK (chill_level >= 1 AND chill_level <= 10),
   user_id VARCHAR(255) REFERENCES users(id)
 );
 
