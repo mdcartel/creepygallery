@@ -6,7 +6,16 @@ import { useAuth } from '../lib/auth-context'
 import Link from 'next/link'
 import ClientOnly from './client-only'
 
-const navItems = [
+interface NavItem {
+  label: string;
+  icon: React.ReactElement;
+  href: string;
+  requiresAuth?: boolean;
+  locked?: boolean;
+  badge?: string;
+}
+
+const navItems: NavItem[] = [
   { label: "Home", icon: <FaHome />, href: "/" },
   { label: "Upload", icon: <FaUpload />, href: "/upload", requiresAuth: true },
   { label: "Profile", icon: <FaUser />, href: "/profile", requiresAuth: true },
