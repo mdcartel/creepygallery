@@ -37,8 +37,8 @@ export default function UploadPage() {
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) { // 2MB limit
-      setMessage("File size must be less than 2MB.");
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      setMessage("File size must be less than 10MB.");
       setLoading(false);
       return;
     }
