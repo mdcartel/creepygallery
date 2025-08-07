@@ -194,33 +194,33 @@ export default function Home() {
                     onClick={() => handleImageClick(item)}
                   >
                     {item.image_url ? (
-                      <>
-                        <img 
-                          src={item.image_url} 
-                          alt={item.title} 
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          style={{ 
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            zIndex: 1
-                          }}
-                        />
-                        {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center pointer-events-none z-10">
-                          <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm font-medium bg-black bg-opacity-60 px-3 py-1 rounded-full">
-                            Click to view
-                          </span>
-                        </div>
-                      </>
+                      <img 
+                        src={item.image_url} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        style={{ 
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          zIndex: 1,
+                          display: 'block'
+                        }}
+                      />
                     ) : (
                       <div className="flex flex-col items-center justify-center w-full h-full">
                         <FaArrowUp className="text-4xl text-[#8B0000] mb-2 rotate-180" />
                         <span className="text-[#F8F8FF] text-sm">No Image</span>
                       </div>
                     )}
+                    
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center pointer-events-none z-10">
+                      <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm font-medium bg-black bg-opacity-60 px-3 py-1 rounded-full">
+                        Click to view
+                      </span>
+                    </div>
                   </div>
                   
                   <div className="p-4">
