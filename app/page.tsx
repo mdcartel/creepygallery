@@ -190,7 +190,7 @@ export default function Home() {
               {galleryItems.map(item => (
                 <div key={item.id} className="bg-[#1A1A1A] border border-[#8B0000] rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
                   <div 
-                    className="aspect-square bg-zinc-800 relative overflow-hidden cursor-pointer"
+                    className="aspect-square bg-white relative overflow-hidden cursor-pointer"
                     onClick={() => handleImageClick(item)}
                   >
                     {item.image_url ? (
