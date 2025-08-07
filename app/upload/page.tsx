@@ -141,6 +141,13 @@ export default function UploadPage() {
         // Reset file input
         const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
         if (fileInput) fileInput.value = '';
+        
+        // Trigger a gallery refresh by posting a message to parent window
+        if (window.opener) {
+          window.opener.postMessage('gallery-refresh', '*');
+        }
+        // Also trigger storage event for same-origin refresh
+        window.localStorage.setItem('gallery-refresh', Date.now().toString());
       } else {
         setMessage(data?.error ? `Error: ${data.error}` : `Upload failed. Status: ${res.status}`);
       }

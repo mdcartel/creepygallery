@@ -45,14 +45,43 @@ export default function Home() {
       fetchGalleryItems();
     };
     
+    // Listen for storage events to refresh gallery after upload
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'gallery-refresh') {
+        console.log('Gallery refresh triggered by upload');
+        fetchGalleryItems();
+      }
+    };
+    
+    // Listen for messages from upload page
+    const handleMessage = (e: MessageEvent) => {
+      if (e.data === 'gallery-refresh') {
+        console.log('Gallery refresh triggered by message');
+        fetchGalleryItems();
+      }
+    };
+    
     window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('message', handleMessage);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('message', handleMessage);
+    };
   }, []);
 
   const fetchGalleryItems = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/gallery');
+      // Add cache-busting timestamp to ensure fresh data
+      const response = await fetch(`/api/gallery?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
       if (response.ok) {
         const items = await response.json();
         console.log('Gallery items fetched:', items);

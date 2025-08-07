@@ -40,12 +40,28 @@ export async function GET() {
     // Try to get items from database first
     const items = await getAllGalleryItems();
     console.log(`Fetched ${items.length} items from database`);
-    return NextResponse.json(items);
+    
+    // Return with no-cache headers to ensure fresh data
+    return NextResponse.json(items, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Surrogate-Control': 'no-store'
+      }
+    });
   } catch (error) {
     console.error('Database error, falling back to memory storage:', error);
     // Fallback to in-memory storage if database fails
     const items = getMemoryItems();
-    return NextResponse.json(items);
+    return NextResponse.json(items, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Surrogate-Control': 'no-store'
+      }
+    });
   }
 }
 
