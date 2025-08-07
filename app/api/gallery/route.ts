@@ -39,7 +39,9 @@ export async function GET() {
   try {
     // Try to get items from database first
     const items = await getAllGalleryItems();
-    console.log(`Fetched ${items.length} items from database`);
+    console.log(`📊 Fetched ${items.length} items from database:`, 
+      items.map(item => ({ id: item.id, title: item.title, author: item.author }))
+    );
     
     // Return with no-cache headers to ensure fresh data
     return NextResponse.json(items, {
@@ -51,9 +53,13 @@ export async function GET() {
       }
     });
   } catch (error) {
-    console.error('Database error, falling back to memory storage:', error);
+    console.error('❌ Database error, falling back to memory storage:', error);
     // Fallback to in-memory storage if database fails
     const items = getMemoryItems();
+    console.log(`💾 Fetched ${items.length} items from memory storage:`,
+      items.map(item => ({ id: item.id, title: item.title, author: item.author }))
+    );
+    
     return NextResponse.json(items, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -182,7 +188,15 @@ export async function POST(request: NextRequest) {
 
     // Save to database (primary) and memory storage (backup)
     try {
-      console.log('Attempting to save to database...', { title, author: user.username, tagsCount: tagsArray.length });
+      console.log('🔄 Attempting to save to database...', { 
+        title, 
+        author: user.username, 
+        tagsCount: tagsArray.length,
+        imageUrlLength: imageUrl.length,
+        chillLevel,
+        userId: user.id
+      });
+      
       const savedItem = await createGalleryItem(
         title,
         imageUrl,
@@ -191,10 +205,16 @@ export async function POST(request: NextRequest) {
         chillLevel,
         user.id
       );
-      console.log('✅ Successfully saved to database:', savedItem.id);
+      
+      console.log('✅ Successfully saved to database:', {
+        id: savedItem.id,
+        title: savedItem.title,
+        author: savedItem.author,
+        hasImageUrl: !!savedItem.image_url
+      });
       
       // Also save to memory storage as backup
-      addGalleryItem({
+      const memoryItem = addGalleryItem({
         title,
         image_url: imageUrl,
         date_uploaded: new Date().toISOString(),
@@ -205,9 +225,16 @@ export async function POST(request: NextRequest) {
         user_id: user.id
       });
       
+      console.log('💾 Also saved to memory storage:', memoryItem.id);
+      
       return NextResponse.json(savedItem, { status: 201 });
     } catch (dbError: any) {
-      console.error('❌ Database save failed:', dbError.message);
+      console.error('❌ Database save failed:', {
+        error: dbError.message,
+        stack: dbError.stack,
+        title,
+        author: user.username
+      });
       
       // Fallback to in-memory storage only
       const savedItem = addGalleryItem({
@@ -221,7 +248,12 @@ export async function POST(request: NextRequest) {
         user_id: user.id
       });
       
-      console.log('💾 Saved to memory storage as fallback:', savedItem.id);
+      console.log('💾 Saved to memory storage as fallback:', {
+        id: savedItem.id,
+        title: savedItem.title,
+        hasImageUrl: !!savedItem.image_url
+      });
+      
       return NextResponse.json({
         ...savedItem,
         message: 'Image saved (database temporarily unavailable)'
