@@ -188,36 +188,94 @@ export default function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
               {galleryItems.map(item => (
-                <div key={item.id} className="bg-[#1A1A1A] border border-[#8B0000] rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
+                <div 
+                  key={item.id} 
+                  className="bg-[#1A1A1A] border border-[#8B0000] rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow"
+                  onMouseEnter={(e) => {
+                    const overlay = e.currentTarget.querySelector('.hover-overlay') as HTMLElement;
+                    if (overlay) overlay.style.opacity = '1';
+                  }}
+                  onMouseLeave={(e) => {
+                    const overlay = e.currentTarget.querySelector('.hover-overlay') as HTMLElement;
+                    if (overlay) overlay.style.opacity = '0';
+                  }}
+                >
                   <div 
-                    className="aspect-square bg-zinc-800 relative overflow-hidden cursor-pointer"
                     onClick={() => handleImageClick(item)}
+                    style={{
+                      width: '100%',
+                      aspectRatio: '1',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      cursor: 'pointer',
+                      backgroundColor: '#27272a',
+                      borderRadius: '12px'
+                    }}
                   >
                     {item.image_url ? (
                       <img 
                         src={item.image_url} 
                         alt={item.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         style={{ 
                           position: 'absolute',
-                          top: 0,
-                          left: 0,
+                          top: '0',
+                          left: '0',
                           width: '100%',
                           height: '100%',
-                          zIndex: 1,
-                          display: 'block'
+                          objectFit: 'cover',
+                          display: 'block',
+                          zIndex: '1',
+                          transition: 'transform 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.transform = 'scale(1.05)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'scale(1)';
                         }}
                       />
                     ) : (
-                      <div className="flex flex-col items-center justify-center w-full h-full">
-                        <FaArrowUp className="text-4xl text-[#8B0000] mb-2 rotate-180" />
-                        <span className="text-[#F8F8FF] text-sm">No Image</span>
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%',
+                        height: '100%',
+                        color: '#F8F8FF'
+                      }}>
+                        <FaArrowUp style={{ fontSize: '2rem', color: '#8B0000', marginBottom: '8px', transform: 'rotate(180deg)' }} />
+                        <span style={{ fontSize: '0.875rem' }}>No Image</span>
                       </div>
                     )}
                     
                     {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center pointer-events-none z-10">
-                      <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm font-medium bg-black bg-opacity-60 px-3 py-1 rounded-full">
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        top: '0',
+                        left: '0',
+                        right: '0',
+                        bottom: '0',
+                        backgroundColor: 'rgba(0,0,0,0.2)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        opacity: '0',
+                        transition: 'opacity 0.3s ease',
+                        zIndex: '10',
+                        pointerEvents: 'none'
+                      }}
+                      className="hover-overlay"
+                    >
+                      <span style={{
+                        color: 'white',
+                        fontSize: '0.875rem',
+                        fontWeight: '500',
+                        backgroundColor: 'rgba(0,0,0,0.6)',
+                        padding: '4px 12px',
+                        borderRadius: '9999px'
+                      }}>
                         Click to view
                       </span>
                     </div>
