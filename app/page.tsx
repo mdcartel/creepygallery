@@ -55,6 +55,7 @@ export default function Home() {
       const response = await fetch('/api/gallery');
       if (response.ok) {
         const items = await response.json();
+        console.log('Gallery items fetched:', items);
         setGalleryItems(items);
       }
     } catch (error) {
@@ -199,8 +200,12 @@ export default function Home() {
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300" 
                         onError={(e) => {
+                          console.error('Image failed to load:', item.image_url);
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
+                        }}
+                        onLoad={() => {
+                          console.log('Image loaded successfully:', item.image_url);
                         }}
                       />
                     ) : (
