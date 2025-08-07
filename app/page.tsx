@@ -190,7 +190,7 @@ export default function Home() {
               {galleryItems.map(item => (
                 <div key={item.id} className="bg-[#1A1A1A] border border-[#8B0000] rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
                   <div 
-                    className="aspect-square bg-red-500 relative overflow-hidden cursor-pointer border-2 border-yellow-400"
+                    className="aspect-square bg-zinc-800 relative overflow-hidden cursor-pointer"
                     onClick={() => handleImageClick(item)}
                   >
                     {item.image_url ? (
@@ -198,7 +198,7 @@ export default function Home() {
                         <img 
                           src={item.image_url} 
                           alt={item.title} 
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           style={{ 
                             position: 'absolute',
                             top: 0,
@@ -208,14 +208,17 @@ export default function Home() {
                             zIndex: 1
                           }}
                         />
-                        <div className="absolute top-2 left-2 bg-white text-black text-xs p-1 z-10">
-                          IMG: {item.image_url.substring(0, 30)}...
+                        {/* Hover overlay */}
+                        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center pointer-events-none z-10">
+                          <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm font-medium bg-black bg-opacity-60 px-3 py-1 rounded-full">
+                            Click to view
+                          </span>
                         </div>
                       </>
                     ) : (
-                      <div className="flex flex-col items-center justify-center w-full h-full text-white">
-                        <FaArrowUp className="text-4xl mb-2 rotate-180" />
-                        <span className="text-sm">No Image URL</span>
+                      <div className="flex flex-col items-center justify-center w-full h-full">
+                        <FaArrowUp className="text-4xl text-[#8B0000] mb-2 rotate-180" />
+                        <span className="text-[#F8F8FF] text-sm">No Image</span>
                       </div>
                     )}
                   </div>
