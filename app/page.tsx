@@ -194,11 +194,10 @@ export default function Home() {
                     onClick={() => handleImageClick(item)}
                   >
                     {item.image_url ? (
-                      <Image 
+                      <img 
                         src={item.image_url} 
                         alt={item.title} 
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
                         onError={(e) => {
                           console.error('Image failed to load:', item.image_url);
                           const target = e.target as HTMLImageElement;
