@@ -190,21 +190,29 @@ export default function Home() {
               {galleryItems.map(item => (
                 <div key={item.id} className="bg-[#1A1A1A] border border-[#8B0000] rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
                   <div 
-                    className="aspect-square bg-white relative overflow-hidden cursor-pointer"
+                    className="aspect-square bg-zinc-100 relative overflow-hidden cursor-pointer"
                     onClick={() => handleImageClick(item)}
+                    style={{ minHeight: '200px' }}
                   >
                     {item.image_url ? (
                       <img 
                         src={item.image_url} 
                         alt={item.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                        style={{ 
+                          display: 'block',
+                          maxWidth: '100%',
+                          maxHeight: '100%'
+                        }}
                         onError={(e) => {
                           console.error('Image failed to load:', item.image_url);
                           const target = e.target as HTMLImageElement;
                           target.style.display = 'none';
                         }}
-                        onLoad={() => {
+                        onLoad={(e) => {
                           console.log('Image loaded successfully:', item.image_url);
+                          const target = e.target as HTMLImageElement;
+                          target.style.opacity = '1';
                         }}
                       />
                     ) : (
@@ -215,7 +223,7 @@ export default function Home() {
                     )}
                     
                     {/* Hover overlay */}
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center pointer-events-none">
                       <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm font-medium bg-black bg-opacity-60 px-3 py-1 rounded-full">
                         Click to view
                       </span>
