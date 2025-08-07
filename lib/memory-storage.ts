@@ -13,7 +13,7 @@ interface StoredImage {
   user_id: string;
 }
 
-// In-memory storage
+// In-memory storage - starts clean
 let galleryItems: StoredImage[] = [];
 
 export function addGalleryItem(item: Omit<StoredImage, 'id'>): StoredImage {

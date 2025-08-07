@@ -66,7 +66,7 @@ export default function UploadPage() {
         return;
       }
       if (res.ok) {
-        setMessage("🎃 Image uploaded successfully! Your cursed creation has been added to the gallery.");
+        setMessage("🎃 Image uploaded successfully! Your cursed creation is now live in the gallery.");
         // Reset form
         setFile(null);
         setTitle("");
@@ -84,9 +84,11 @@ export default function UploadPage() {
     setLoading(false);
   };
 
-  return (
-    <ProtectedRoute>
+  if (!user) {
+    return (
       <MainContent>
+        <div className="bg-black text-[#F8F8FF] flex flex-col items-center justify-center min-h-screen">
+          <h1 className="text-4xl font-creepy mb-4">Upload Portal<
         <div className="bg-black text-[#F8F8FF] flex flex-col items-center justify-center min-h-screen">
           <h1 className="text-4xl font-creepy mb-4">Upload Portal</h1>
           <p className="text-lg opacity-70 mb-6">Summon your most cursed images here...</p>
@@ -158,12 +160,19 @@ export default function UploadPage() {
             </button>
             
             {message && (
-              <div className={`text-center mt-2 p-2 rounded ${
+              <div className={`text-center mt-2 p-3 rounded-lg ${
                 message.includes('successfully') 
                   ? 'bg-green-900/20 text-green-400 border border-green-800' 
                   : 'bg-red-900/20 text-red-400 border border-red-800'
               }`}>
                 {message}
+                {message.includes('successfully') && (
+                  <div className="mt-2">
+                    <a href="/" className="text-green-300 hover:text-green-200 underline text-sm">
+                      View in gallery →
+                    </a>
+                  </div>
+                )}
               </div>
             )}
           </form>
