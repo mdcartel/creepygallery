@@ -21,6 +21,11 @@ export async function uploadImageToCloudinary(
   filename: string
 ): Promise<CloudinaryUploadResult> {
   return new Promise((resolve, reject) => {
+    // Set a timeout for the upload
+    const timeout = setTimeout(() => {
+      reject(new Error('Cloudinary upload timeout after 30 seconds'));
+    }, 30000);
+
     cloudinary.uploader.upload_stream(
       {
         resource_type: 'image',
@@ -30,8 +35,11 @@ export async function uploadImageToCloudinary(
           { quality: 'auto' }, // Automatic quality optimization
           { fetch_format: 'auto' }, // Automatic format selection (WebP, etc.)
         ],
+        timeout: 60000, // 60 second timeout
       },
       (error, result) => {
+        clearTimeout(timeout);
+        
         if (error) {
           console.error('Cloudinary upload error:', error);
           reject(error);

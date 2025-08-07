@@ -135,16 +135,27 @@ export async function POST(request: NextRequest) {
     } catch (cloudinaryError) {
       console.error('Cloudinary upload failed:', cloudinaryError);
       
-      // Fallback to base64 if Cloudinary fails
+      // Try to compress the image further if it's too large for base64
+      let finalBuffer = buffer;
+      if (buffer.length > 500000) { // If larger than 500KB, try to compress more
+        console.log('Image too large for base64, attempting server-side compression...');
+        // For now, just reject very large images when Cloudinary fails
+        return NextResponse.json(
+          { error: 'Image upload failed. Cloudinary is temporarily unavailable and the image is too large for backup storage. Please try again later or use a smaller image.' },
+          { status: 503 }
+        );
+      }
+      
+      // Fallback to base64 if Cloudinary fails and image is small enough
       console.log('Falling back to base64 storage');
-      const base64 = buffer.toString('base64');
+      const base64 = finalBuffer.toString('base64');
       const mimeType = file.type;
       imageUrl = `data:${mimeType};base64,${base64}`;
       
       // Check if the base64 string is too large
       if (imageUrl.length > 1000000) {
         return NextResponse.json(
-          { error: 'Image is too large and Cloudinary is unavailable. Please try a smaller image.' },
+          { error: 'Image is too large for backup storage and Cloudinary is unavailable. Please try a smaller image or try again later.' },
           { status: 400 }
         );
       }

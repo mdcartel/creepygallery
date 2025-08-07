@@ -13,6 +13,56 @@ export default function UploadPage() {
   const [message, setMessage] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
+  // Image compression function
+  const compressImage = (file: File, maxWidth: number = 1920, maxHeight: number = 1080, quality: number = 0.8): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calculate new dimensions
+        let { width, height } = img;
+        
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Draw and compress
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              resolve(file); // Fallback to original if compression fails
+            }
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
@@ -37,14 +87,30 @@ export default function UploadPage() {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) { // 10MB limit
-      setMessage("File size must be less than 10MB.");
+    // Compress image if it's too large or if it's from mobile
+    let fileToUpload = file;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    if (file.size > 2 * 1024 * 1024 || isMobile) { // Compress if > 2MB or on mobile
+      setMessage("Compressing image for optimal upload...");
+      try {
+        fileToUpload = await compressImage(file, 1920, 1080, 0.8);
+        console.log(`Compressed from ${(file.size / 1024 / 1024).toFixed(2)}MB to ${(fileToUpload.size / 1024 / 1024).toFixed(2)}MB`);
+      } catch (error) {
+        console.error('Compression failed, using original:', error);
+        fileToUpload = file;
+      }
+    }
+
+    // Final size check after compression
+    if (fileToUpload.size > 10 * 1024 * 1024) { // 10MB limit
+      setMessage("Image is still too large after compression. Please try a smaller image.");
       setLoading(false);
       return;
     }
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", fileToUpload);
     formData.append("title", title);
     formData.append("tags", tags);
     formData.append("chillLevel", chillLevel.toString());
