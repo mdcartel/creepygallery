@@ -20,6 +20,18 @@ export async function createGalleryItem(
   chillLevel: number,
   userId: string
 ): Promise<GalleryItem> {
+  // First, ensure the user exists in the users table
+  try {
+    await sqlQuery`
+      INSERT INTO users (id, email, username, password) 
+      VALUES (${userId}, ${userId + '@creepygallery.com'}, ${author}, 'temp-password')
+      ON CONFLICT (id) DO NOTHING
+    `;
+  } catch (userError) {
+    console.log('User creation skipped (might already exist):', userError);
+  }
+  
+  // Now insert the gallery item
   const result = await sqlQuery<GalleryItem>`
     INSERT INTO gallery_items (title, image_url, author, tags, chill_level, user_id) 
     VALUES (${title}, ${imageUrl}, ${author}, ${tags}, ${chillLevel}, ${userId}) 

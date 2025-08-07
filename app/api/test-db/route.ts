@@ -6,6 +6,13 @@ export async function GET() {
     // Test basic database connection
     const result = await sqlQuery`SELECT COUNT(*) as count FROM gallery_items`;
     
+    // Test inserting a user first
+    await sqlQuery`
+      INSERT INTO users (id, email, username, password) 
+      VALUES ('test-user-id', 'test@creepygallery.com', 'Test User', 'temp-password')
+      ON CONFLICT (id) DO NOTHING
+    `;
+    
     // Test inserting a simple item
     const testInsert = await sqlQuery`
       INSERT INTO gallery_items (title, image_url, author, tags, chill_level, user_id) 
@@ -13,8 +20,9 @@ export async function GET() {
       RETURNING *
     `;
     
-    // Clean up test item
+    // Clean up test item and user
     await sqlQuery`DELETE FROM gallery_items WHERE title = 'Test Item'`;
+    await sqlQuery`DELETE FROM users WHERE id = 'test-user-id'`;
     
     return NextResponse.json({
       success: true,
