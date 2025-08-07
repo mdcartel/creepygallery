@@ -50,42 +50,60 @@
   - Improve form validation with real-time feedback
   - _Requirements: 1.1, 1.4_
 
-- [ ] 7. Implement image metadata display and management
+- [x] 7. Implement fullscreen image modal with download functionality
+
+
+
+  - Create fullscreen modal component with overlay and navigation
+  - Add download button that triggers image download with proper filename
+  - Implement keyboard navigation (ESC, arrow keys) and touch/swipe support
+  - Add zoom functionality and image metadata display overlay
+  - Integrate modal with gallery grid - clicking images opens fullscreen view
+  - _Requirements: 3.5, 3.6, 4.1, 4.2_
+
+- [ ] 8. Create download API route and tracking system
+  - Implement `/api/download/[id]/route.ts` to serve original images for download
+  - Add proper Content-Disposition headers for file download behavior
+  - Implement download count increment in database when image is downloaded
+  - Add security checks to prevent unauthorized access to image files
+  - _Requirements: 4.2, 4.3, 4.4_
+
+- [ ] 9. Implement image metadata display and management
   - Ensure proper display of chill level as skull icons
   - Implement tag display as colored badges
   - Add author, date, and download count display
-  - Create image detail modal or page for full-size viewing
+  - Update gallery grid to show download counts and other metadata
   - _Requirements: 2.2, 3.1, 3.2, 3.3_
 
-- [ ] 8. Add user image management functionality
+- [ ] 10. Add user image management functionality
   - Create user profile page or section for managing uploaded images
   - Implement edit functionality for image metadata (title, tags, chill level)
   - Add delete functionality with confirmation dialogs
   - Ensure users can only manage their own images
   - _Requirements: 4.1, 4.2, 4.3_
 
-- [ ] 9. Implement performance optimizations
+- [ ] 11. Implement performance optimizations
   - Add lazy loading for gallery images not immediately visible
   - Implement image caching headers for better performance
   - Add pagination or infinite scroll for large galleries
   - Optimize database queries with proper indexing
   - _Requirements: 5.1, 5.2, 5.4_
 
-- [ ] 10. Add comprehensive error handling and user feedback
+- [ ] 12. Add comprehensive error handling and user feedback
   - Implement proper error messages for all failure scenarios
   - Add success notifications for completed operations
   - Create fallback UI for when images fail to load
   - Add retry mechanisms for failed uploads
   - _Requirements: 1.5, 2.3, 6.5_
 
-- [ ] 11. Write comprehensive tests for image functionality
+- [ ] 13. Write comprehensive tests for image functionality
   - Create unit tests for file validation functions
   - Write integration tests for API routes with mock file uploads
   - Add tests for database operations and error scenarios
   - Implement end-to-end tests for complete upload workflow
   - _Requirements: All requirements validation_
 
-- [ ] 12. Integrate authentication and authorization
+- [ ] 14. Integrate authentication and authorization
   - Ensure all upload operations require valid authentication
   - Implement proper authorization checks for image management
   - Add rate limiting for upload endpoints

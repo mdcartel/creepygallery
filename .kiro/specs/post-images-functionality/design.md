@@ -66,11 +66,24 @@ The design focuses on fixing the existing API route issues, implementing proper 
 **Enhancements:**
 - Fetch real data from API instead of static mock data
 - Implement lazy loading for performance
-- Add image modal/lightbox for full-size viewing
+- Add image modal/lightbox for full-size viewing with fullscreen capability
+- Add download functionality with download count tracking
 - Add filtering and sorting capabilities
 - Responsive grid layout improvements
 
-### 4. Image Management Component
+### 4. Fullscreen Image Modal Component
+**Location:** `components/fullscreen-modal.tsx` (new)
+
+**Features:**
+- Display images in fullscreen overlay
+- Navigation between images (previous/next)
+- Download button with original image quality
+- Zoom in/out functionality
+- Keyboard navigation (ESC to close, arrow keys for navigation)
+- Touch/swipe support for mobile devices
+- Image metadata display overlay
+
+### 5. Image Management Component
 **Location:** `app/profile/page.tsx` (new) or `components/image-manager.tsx`
 
 **Features:**
@@ -79,14 +92,25 @@ The design focuses on fixing the existing API route issues, implementing proper 
 - Delete images with confirmation
 - Bulk operations
 
-### 5. Enhanced Gallery Service
+### 6. Enhanced Gallery Service
 **Location:** `lib/gallery.ts`
 
 **Additional Functions:**
 - `updateGalleryItem()` - Update image metadata
 - `getGalleryItemsByTag()` - Filter by tags
 - `searchGalleryItems()` - Search functionality
+- `incrementDownloadCount()` - Track image downloads
 - Image file cleanup utilities
+
+### 7. Download API Route
+**Location:** `app/api/download/[id]/route.ts` (new)
+
+**Features:**
+- Serve original image files for download
+- Increment download counter in database
+- Proper Content-Disposition headers for file download
+- Security checks to prevent unauthorized access
+- Support for different image formats
 
 ## Data Models
 

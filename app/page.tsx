@@ -7,6 +7,7 @@ import { FaArrowUp, FaRegCalendarAlt, FaUpload, FaUser } from 'react-icons/fa'
 import { FaSkull } from 'react-icons/fa6'
 import { useAuth } from '../lib/auth-context'
 import ClientOnly from '../components/client-only'
+import FullscreenModal from '../components/fullscreen-modal'
 
 interface GalleryItem {
   id: number;
@@ -33,6 +34,8 @@ export default function Home() {
   const { user } = useAuth();
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchGalleryItems();
@@ -68,6 +71,31 @@ export default function Home() {
     } catch {
       return dateString;
     }
+  };
+
+  const handleImageClick = (item: GalleryItem) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedItem(null);
+  };
+
+  const handleNavigate = (direction: 'prev' | 'next') => {
+    if (!selectedItem) return;
+    
+    const currentIndex = galleryItems.findIndex(item => item.id === selectedItem.id);
+    let newIndex;
+    
+    if (direction === 'prev') {
+      newIndex = currentIndex > 0 ? currentIndex - 1 : galleryItems.length - 1;
+    } else {
+      newIndex = currentIndex < galleryItems.length - 1 ? currentIndex + 1 : 0;
+    }
+    
+    setSelectedItem(galleryItems[newIndex]);
   };
 
   return (
@@ -160,7 +188,10 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
               {galleryItems.map(item => (
                 <div key={item.id} className="bg-[#1A1A1A] border border-[#8B0000] rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow group">
-                  <div className="aspect-square bg-zinc-800 relative overflow-hidden">
+                  <div 
+                    className="aspect-square bg-zinc-800 relative overflow-hidden cursor-pointer"
+                    onClick={() => handleImageClick(item)}
+                  >
                     {item.image_url ? (
                       <Image 
                         src={item.image_url} 
@@ -178,6 +209,13 @@ export default function Home() {
                         <span className="text-[#F8F8FF] text-sm">No Image</span>
                       </div>
                     )}
+                    
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center">
+                      <span className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-sm font-medium">
+                        Click to view
+                      </span>
+                    </div>
                   </div>
                   
                   <div className="p-4">
@@ -216,6 +254,15 @@ export default function Home() {
           </>
         )}
       </main>
+
+      {/* Fullscreen Modal */}
+      <FullscreenModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        currentItem={selectedItem}
+        allItems={galleryItems}
+        onNavigate={handleNavigate}
+      />
     </div>
   );
 }

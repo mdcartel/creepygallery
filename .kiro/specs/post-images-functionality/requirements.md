@@ -39,8 +39,21 @@ The post images functionality enables users to upload, store, and display images
 2. WHEN an image is displayed THEN the system SHALL show tags as colored badges
 3. WHEN an image is displayed THEN the system SHALL show the author name, upload date, and download count
 4. WHEN a user views image details THEN the system SHALL display all metadata in a readable format
+5. WHEN a user clicks on an image THEN the system SHALL display the image in fullscreen mode with navigation controls
+6. WHEN a user views an image in fullscreen THEN the system SHALL provide a download button to save the image locally
 
 ### Requirement 4
+
+**User Story:** As a user, I want to download images from the gallery, so that I can save interesting content to my device.
+
+#### Acceptance Criteria
+
+1. WHEN a user views an image THEN the system SHALL provide a download button or option
+2. WHEN a user clicks the download button THEN the system SHALL initiate a download of the original image file
+3. WHEN an image is downloaded THEN the system SHALL increment the download count for that image
+4. WHEN a user downloads an image THEN the system SHALL preserve the original filename and quality
+
+### Requirement 5
 
 **User Story:** As a registered user, I want to manage my uploaded images, so that I can edit or remove content I've posted.
 
@@ -51,7 +64,7 @@ The post images functionality enables users to upload, store, and display images
 3. WHEN a user deletes an image THEN the system SHALL remove both the database record and the image file from storage
 4. WHEN a user edits image metadata THEN the system SHALL update the database record with new information
 
-### Requirement 5
+### Requirement 6
 
 **User Story:** As a user, I want images to load quickly and efficiently, so that I can browse the gallery without delays.
 
@@ -62,7 +75,7 @@ The post images functionality enables users to upload, store, and display images
 3. WHEN images are uploaded THEN the system SHALL generate thumbnails for gallery display
 4. WHEN images are served THEN the system SHALL use appropriate caching headers for performance
 
-### Requirement 6
+### Requirement 7
 
 **User Story:** As a user, I want the image upload process to be secure and reliable, so that my content is safely stored and protected.
 
