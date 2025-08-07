@@ -210,9 +210,7 @@ export default function FullscreenModal({ isOpen, onClose, currentItem, allItems
               </div>
             </div>
 
-            <div className="text-xs text-zinc-500 text-center">
-              Press ESC to close • Use arrow keys to navigate • Press I to toggle info
-            </div>
+
           </div>
         </div>
       )}
