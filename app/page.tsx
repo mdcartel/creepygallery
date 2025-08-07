@@ -36,6 +36,14 @@ export default function Home() {
 
   useEffect(() => {
     fetchGalleryItems();
+    
+    // Auto-refresh when user returns to page (e.g., after upload)
+    const handleFocus = () => {
+      fetchGalleryItems();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   const fetchGalleryItems = async () => {
@@ -138,9 +146,15 @@ export default function Home() {
           <>
             <div className="text-center mb-12">
               <h2 className="text-4xl font-creepy mb-4">Gallery of Shadows</h2>
-              <p className="text-zinc-300 max-w-2xl mx-auto">
+              <p className="text-zinc-300 max-w-2xl mx-auto mb-4">
                 Explore the darkest corners of imagination. Each image tells a story of fear, mystery, and the supernatural.
               </p>
+              <button 
+                onClick={fetchGalleryItems}
+                className="text-zinc-400 hover:text-[#B2002D] text-sm transition-colors"
+              >
+                🔄 Refresh Gallery
+              </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">

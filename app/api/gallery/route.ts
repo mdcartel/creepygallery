@@ -153,9 +153,9 @@ export async function POST(request: NextRequest) {
     // Parse tags into array
     const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
-    // Try to save to database first, fallback to memory storage
+    // Save to database (primary) and memory storage (backup)
     try {
-      console.log('Attempting to save to database...');
+      console.log('Attempting to save to database...', { title, author: user.username, tagsCount: tagsArray.length });
       const savedItem = await createGalleryItem(
         title,
         imageUrl,
@@ -164,12 +164,25 @@ export async function POST(request: NextRequest) {
         chillLevel,
         user.id
       );
-      console.log('Successfully saved to database:', savedItem.id);
+      console.log('✅ Successfully saved to database:', savedItem.id);
+      
+      // Also save to memory storage as backup
+      addGalleryItem({
+        title,
+        image_url: imageUrl,
+        date_uploaded: new Date().toISOString(),
+        downloads: 0,
+        author: user.username,
+        tags: tagsArray,
+        chill_level: chillLevel,
+        user_id: user.id
+      });
+      
       return NextResponse.json(savedItem, { status: 201 });
     } catch (dbError: any) {
-      console.error('Database save failed, using memory storage:', dbError);
+      console.error('❌ Database save failed:', dbError.message);
       
-      // Fallback to in-memory storage
+      // Fallback to in-memory storage only
       const savedItem = addGalleryItem({
         title,
         image_url: imageUrl,
@@ -181,6 +194,7 @@ export async function POST(request: NextRequest) {
         user_id: user.id
       });
       
+      console.log('💾 Saved to memory storage as fallback:', savedItem.id);
       return NextResponse.json({
         ...savedItem,
         message: 'Image saved (database temporarily unavailable)'
