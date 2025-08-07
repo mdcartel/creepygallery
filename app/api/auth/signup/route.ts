@@ -35,24 +35,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Temporary demo signup (bypass database)
-    // TODO: Re-enable database user creation once connection is fixed
-    console.log('Using demo signup due to database issues');
-    
-    const demoUser = {
-      id: 'demo-user',
-      email: email,
-      username: username,
-      createdAt: new Date()
-    };
-    
-    return NextResponse.json(
-      { 
-        message: 'Account created successfully (demo mode)',
-        user: demoUser
-      },
-      { status: 201 }
-    );
+    try {
+      // Check if user already exists
+      const existingUser = await findUserByEmail(email);
+      if (existingUser) {
+        return NextResponse.json(
+          { error: 'An account with this email already exists' },
+          { status: 409 }
+        );
+      }
+
+      // Create user
+      const user = await createUser(email, username, password);
+
+      // Return success (without password)
+      const { password: _, ...userWithoutPassword } = user;
+      
+      return NextResponse.json(
+        { 
+          message: 'Account created successfully',
+          user: userWithoutPassword
+        },
+        { status: 201 }
+      );
+    } catch (dbError: any) {
+      console.error('Database error during signup:', dbError);
+      
+      // Fallback to demo mode if database is unavailable
+      console.log('Falling back to demo signup due to database issues');
+      
+      const demoUser = {
+        id: `demo-${Date.now()}`,
+        email: email,
+        username: username,
+        createdAt: new Date()
+      };
+      
+      return NextResponse.json(
+        { 
+          message: 'Account created successfully (demo mode - database unavailable)',
+          user: demoUser
+        },
+        { status: 201 }
+      );
+    }
 
   } catch (error) {
     console.error('Signup error:', error);

@@ -2,10 +2,10 @@ import { neon } from '@neondatabase/serverless';
 
 // Get the database URL from environment variables
 if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL environment variable is required');
+  console.warn('DATABASE_URL not set - database features will be disabled');
 }
 
-const sql = neon(process.env.DATABASE_URL);
+const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : null;
 
 export { sql };
 
@@ -44,11 +44,21 @@ export async function sqlQuery<T = any>(
   strings: TemplateStringsArray,
   ...values: any[]
 ): Promise<T[]> {
+  if (!sql) {
+    throw new Error('Database not configured');
+  }
+  
   try {
     const result = await sql(strings, ...values);
     return result as T[];
-  } catch (error) {
+  } catch (error: any) {
     console.error('Database query error:', error);
+    
+    // Handle specific connection errors
+    if (error.message?.includes('timeout') || error.message?.includes('fetch failed')) {
+      throw new Error('Database connection timeout - please try again');
+    }
+    
     throw new Error('Database operation failed');
   }
 } 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '../../../lib/auth';
 import { addGalleryItem, getAllGalleryItems as getMemoryItems } from '../../../lib/memory-storage';
 import { uploadImageToCloudinary } from '../../../lib/cloudinary';
+import { getAllGalleryItems, createGalleryItem } from '../../../lib/gallery';
 
 // File validation utilities
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -35,10 +36,17 @@ function validateImageMagicNumbers(buffer: ArrayBuffer): boolean {
 }
 
 export async function GET() {
-  // Return items from in-memory storage (demo mode)
-  console.log('Returning gallery items from memory storage');
-  const items = getMemoryItems();
-  return NextResponse.json(items);
+  try {
+    // Try to get items from database first
+    const items = await getAllGalleryItems();
+    console.log(`Fetched ${items.length} items from database`);
+    return NextResponse.json(items);
+  } catch (error) {
+    console.error('Database error, falling back to memory storage:', error);
+    // Fallback to in-memory storage if database fails
+    const items = getMemoryItems();
+    return NextResponse.json(items);
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -145,21 +153,39 @@ export async function POST(request: NextRequest) {
     // Parse tags into array
     const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
-    // Save to in-memory storage (demo mode)
-    console.log('Saving image to memory storage');
-    
-    const savedItem = addGalleryItem({
-      title,
-      image_url: imageUrl,
-      date_uploaded: new Date().toISOString(),
-      downloads: 0,
-      author: user.username,
-      tags: tagsArray,
-      chill_level: chillLevel,
-      user_id: user.id
-    });
-    
-    return NextResponse.json(savedItem, { status: 201 });
+    // Try to save to database first, fallback to memory storage
+    try {
+      console.log('Attempting to save to database...');
+      const savedItem = await createGalleryItem(
+        title,
+        imageUrl,
+        user.username,
+        tagsArray,
+        chillLevel,
+        user.id
+      );
+      console.log('Successfully saved to database:', savedItem.id);
+      return NextResponse.json(savedItem, { status: 201 });
+    } catch (dbError: any) {
+      console.error('Database save failed, using memory storage:', dbError);
+      
+      // Fallback to in-memory storage
+      const savedItem = addGalleryItem({
+        title,
+        image_url: imageUrl,
+        date_uploaded: new Date().toISOString(),
+        downloads: 0,
+        author: user.username,
+        tags: tagsArray,
+        chill_level: chillLevel,
+        user_id: user.id
+      });
+      
+      return NextResponse.json({
+        ...savedItem,
+        message: 'Image saved (database temporarily unavailable)'
+      }, { status: 201 });
+    }
 
   } catch (error) {
     console.error('Error creating gallery item:', error);
