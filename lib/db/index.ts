@@ -53,20 +53,38 @@ export async function sqlQuery<T = any>(
   ...values: any[]
 ): Promise<T[]> {
   if (!sql) {
+    console.error('Database not configured - DATABASE_URL missing');
     throw new Error('Database not configured');
   }
   
   try {
+    console.log('Executing SQL query:', { 
+      query: strings.join('?'), 
+      values: values.map(v => typeof v === 'string' ? v.substring(0, 50) + '...' : v)
+    });
+    
     const result = await sql(strings, ...values);
+    console.log('Query successful, returned', result?.length || 0, 'rows');
     return result as T[];
   } catch (error: any) {
-    console.error('Database query error:', error);
+    console.error('Database query error details:', {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+      hint: error.hint,
+      position: error.position,
+      stack: error.stack
+    });
     
     // Handle specific connection errors
     if (error.message?.includes('timeout') || error.message?.includes('fetch failed')) {
       throw new Error('Database connection timeout - please try again');
     }
     
-    throw new Error('Database operation failed');
+    if (error.message?.includes('relation') && error.message?.includes('does not exist')) {
+      throw new Error('Database table does not exist - please run database setup');
+    }
+    
+    throw new Error(`Database operation failed: ${error.message}`);
   }
 } 
