@@ -14,6 +14,10 @@ export async function executeQuery<T = any>(
   query: string, 
   params?: any[]
 ): Promise<T[]> {
+  if (!sql) {
+    throw new Error('Database not configured');
+  }
+  
   try {
     // For Neon, we need to use template literals for parameterized queries
     // This is a simplified approach - in practice, you'd use template literals
@@ -30,6 +34,10 @@ export async function executeQuerySingle<T = any>(
   query: string, 
   params?: any[]
 ): Promise<T | null> {
+  if (!sql) {
+    throw new Error('Database not configured');
+  }
+  
   try {
     const result = await sql`${query}`;
     return (result[0] as T) || null;
