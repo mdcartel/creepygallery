@@ -1,0 +1,27 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background with rounded corners for iOS -->
+  <rect width="180" height="180" rx="20" fill="#0a0a0a"/>
+  
+  <!-- Skull outline - scaled up -->
+  <g transform="translate(30, 20) scale(2.5)">
+    <path d="M24 8C19 8 15 12 15 18v8c0 3.5 2 6.5 4.5 8L17 38c-0.5 0.5-0.5 1.5 0 2s1.5 0.5 2 0l3-3c1 0.4 2 0.6 3 0.6s2-0.2 3-0.6l3 3c0.5 0.5 1.5 0.5 2 0s0.5-1.5 0-2l-2.5-4C32 32.5 34 29.5 34 26v-8c0-6-4-10-10-10z" fill="#8B0000" stroke="#B91C1C" stroke-width="0.8"/>
+    
+    <!-- Eye sockets -->
+    <circle cx="20" cy="22" r="3.5" fill="#000000"/>
+    <circle cx="28" cy="22" r="3.5" fill="#000000"/>
+    <circle cx="20" cy="22" r="1.5" fill="#8B0000" opacity="0.7"/>
+    <circle cx="28" cy="22" r="1.5" fill="#8B0000" opacity="0.7"/>
+    
+    <!-- Nasal cavity -->
+    <path d="M24 26L22 32L26 32z" fill="#000000"/>
+    
+    <!-- Teeth -->
+    <rect x="21" y="34" width="2" height="4" fill="#000000" rx="0.3"/>
+    <rect x="24" y="34" width="2" height="4" fill="#000000" rx="0.3"/>
+    <rect x="27" y="34" width="2" height="4" fill="#000000" rx="0.3"/>
+  </g>
+  
+  <!-- Creepy Gallery text -->
+  <text x="90" y="155" text-anchor="middle" fill="#8B0000" font-family="serif" font-size="14" font-weight="bold">CREEPY</text>
+  <text x="90" y="170" text-anchor="middle" fill="#666" font-family="serif" font-size="12">GALLERY</text>
+</svg>
