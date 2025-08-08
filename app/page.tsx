@@ -23,7 +23,7 @@ interface GalleryItem {
 function SkullRating({ level }: { level: number }) {
   return (
     <span className="flex gap-1">
-      {[0,1,2,3,4].map(i => (
+      {[0, 1, 2, 3, 4].map(i => (
         <FaSkull key={i} className={`w-4 h-4 ${i < level ? 'text-[#8B0000] drop-shadow-glow' : 'text-zinc-700'}`} />
       ))}
     </span>
@@ -39,12 +39,12 @@ export default function Home() {
 
   useEffect(() => {
     fetchGalleryItems();
-    
+
     // Auto-refresh when user returns to page (e.g., after upload)
     const handleFocus = () => {
       fetchGalleryItems();
     };
-    
+
     // Listen for storage events to refresh gallery after upload
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'gallery-refresh') {
@@ -52,7 +52,7 @@ export default function Home() {
         fetchGalleryItems();
       }
     };
-    
+
     // Listen for messages from upload page
     const handleMessage = (e: MessageEvent) => {
       if (e.data === 'gallery-refresh') {
@@ -60,11 +60,11 @@ export default function Home() {
         fetchGalleryItems();
       }
     };
-    
+
     window.addEventListener('focus', handleFocus);
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('message', handleMessage);
-    
+
     return () => {
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('storage', handleStorageChange);
@@ -115,16 +115,16 @@ export default function Home() {
 
   const handleNavigate = (direction: 'prev' | 'next') => {
     if (!selectedItem) return;
-    
+
     const currentIndex = galleryItems.findIndex(item => item.id === selectedItem.id);
     let newIndex;
-    
+
     if (direction === 'prev') {
       newIndex = currentIndex > 0 ? currentIndex - 1 : galleryItems.length - 1;
     } else {
       newIndex = currentIndex < galleryItems.length - 1 ? currentIndex + 1 : 0;
     }
-    
+
     setSelectedItem(galleryItems[newIndex]);
   };
 
@@ -172,16 +172,16 @@ export default function Home() {
             </p>
             <ClientOnly>
               {user ? (
-                <Link 
-                  href="/upload" 
+                <Link
+                  href="/upload"
                   className="group relative bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 inline-flex items-center gap-3 shadow-lg hover:shadow-red-900/50 border border-red-500/30"
                 >
                   <FaUpload className="w-5 h-5 group-hover:animate-bounce" />
                   <span className="tracking-wide">SUMMON FIRST NIGHTMARE</span>
                 </Link>
               ) : (
-                <Link 
-                  href="/signup" 
+                <Link
+                  href="/signup"
                   className="group relative bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-red-900/50 border border-red-500/30"
                 >
                   <span className="tracking-wide">JOIN THE DARKNESS</span>
@@ -199,10 +199,10 @@ export default function Home() {
                 <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
               </div>
               <p className="text-gray-300 max-w-3xl mx-auto mb-8 text-lg leading-relaxed">
-                Venture into the abyss of human imagination. Each cursed image harbors secrets of terror, 
+                Venture into the abyss of human imagination. Each cursed image harbors secrets of terror,
                 mystery, and the supernatural realm beyond mortal comprehension.
               </p>
-              <button 
+              <button
                 onClick={fetchGalleryItems}
                 className="group bg-gray-800/50 hover:bg-red-900/30 border border-red-800/30 hover:border-red-600/50 text-gray-300 hover:text-red-400 px-6 py-3 rounded-xl transition-all duration-300 inline-flex items-center gap-2 backdrop-blur-sm"
               >
@@ -213,8 +213,8 @@ export default function Home() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
               {galleryItems.map(item => (
-                <div 
-                  key={item.id} 
+                <div
+                  key={item.id}
                   className="group relative"
                   onMouseEnter={(e) => {
                     const overlay = e.currentTarget.querySelector('.hover-overlay') as HTMLElement;
@@ -227,9 +227,9 @@ export default function Home() {
                 >
                   {/* Glowing border effect */}
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl blur opacity-0 group-hover:opacity-75 transition duration-500"></div>
-                  
+
                   <div className="relative bg-gradient-to-br from-gray-900 to-black border border-red-900/30 rounded-2xl overflow-hidden shadow-2xl hover:shadow-red-900/20 transition-all duration-500 group-hover:scale-[1.02]">
-                    <div 
+                    <div
                       onClick={() => handleImageClick(item)}
                       style={{
                         width: '100%',
@@ -240,45 +240,45 @@ export default function Home() {
                         backgroundColor: '#1a1a1a'
                       }}
                     >
-                    {item.image_url ? (
-                      <img 
-                        src={item.image_url} 
-                        alt={item.title} 
-                        style={{ 
-                          position: 'absolute',
-                          top: '0',
-                          left: '0',
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt={item.title}
+                          style={{
+                            position: 'absolute',
+                            top: '0',
+                            left: '0',
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            display: 'block',
+                            zIndex: '1',
+                            transition: 'transform 0.3s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'scale(1.05)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)';
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                           width: '100%',
                           height: '100%',
-                          objectFit: 'cover',
-                          display: 'block',
-                          zIndex: '1',
-                          transition: 'transform 0.3s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'scale(1.05)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = 'scale(1)';
-                        }}
-                      />
-                    ) : (
-                      <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '100%',
-                        height: '100%',
-                        color: '#F8F8FF'
-                      }}>
-                        <FaArrowUp style={{ fontSize: '2rem', color: '#8B0000', marginBottom: '8px', transform: 'rotate(180deg)' }} />
-                        <span style={{ fontSize: '0.875rem' }}>No Image</span>
-                      </div>
-                    )}
-                    
+                          color: '#F8F8FF'
+                        }}>
+                          <FaArrowUp style={{ fontSize: '2rem', color: '#8B0000', marginBottom: '8px', transform: 'rotate(180deg)' }} />
+                          <span style={{ fontSize: '0.875rem' }}>No Image</span>
+                        </div>
+                      )}
+
                       {/* Hover overlay */}
-                      <div 
+                      <div
                         style={{
                           position: 'absolute',
                           top: '0',
@@ -312,10 +312,10 @@ export default function Home() {
                         </div>
                       </div>
                     </div>
-                  
+
                     <div className="p-5 bg-gradient-to-t from-black/80 to-transparent">
                       <h3 className="text-lg font-bold text-white mb-3 truncate tracking-wide">{item.title}</h3>
-                      
+
                       <div className="flex items-center justify-between text-xs text-gray-400 mb-3">
                         <span className="flex items-center gap-2 bg-red-900/20 px-2 py-1 rounded-full border border-red-800/30">
                           <FaUser className="w-3 h-3 text-red-400" />
@@ -326,7 +326,7 @@ export default function Home() {
                           {formatDate(item.date_uploaded)}
                         </span>
                       </div>
-                      
+
                       <div className="flex flex-wrap gap-1 mb-3">
                         {item.tags.slice(0, 3).map((tag, index) => (
                           <span key={index} className="bg-gradient-to-r from-red-600 to-red-700 text-xs px-3 py-1 rounded-full text-white font-medium border border-red-500/30">
@@ -337,7 +337,7 @@ export default function Home() {
                           <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">+{item.tags.length - 3}</span>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="text-xs text-gray-400 font-medium">FEAR:</span>

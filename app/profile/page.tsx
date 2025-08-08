@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import MainContent from '../../components/main-content';
 import ProtectedRoute from '../../components/protected-route';
 import { useAuth } from '../../lib/auth-context';
@@ -196,19 +197,19 @@ export default function ProfilePage() {
                     </div>
                     
                     <div className="space-y-4">
-                      <button className="group w-full relative bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-red-900/50 border border-red-500/30">
+                      <Link href="/upload" className="group w-full relative bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white p-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-red-900/50 border border-red-500/30 block">
                         <div className="flex items-center justify-center gap-3">
                           <FaUpload className="text-lg group-hover:animate-bounce" />
                           <span className="tracking-wide">SUMMON NEW NIGHTMARE</span>
                         </div>
-                      </button>
+                      </Link>
                       
-                      <button className="group w-full relative bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white p-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-gray-900/50 border border-gray-600/30">
+                      <Link href="/" className="group w-full relative bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white p-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-gray-900/50 border border-gray-600/30 block">
                         <div className="flex items-center justify-center gap-3">
                           <FaUser className="text-lg group-hover:animate-pulse" />
                           <span className="tracking-wide">VIEW MY HORRORS</span>
                         </div>
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
