@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
-import { FaArrowUp, FaRegCalendarAlt, FaUpload, FaUser } from 'react-icons/fa'
+import { FaArrowUp, FaRegCalendarAlt, FaUpload, FaUser, FaSignInAlt, FaUserPlus } from 'react-icons/fa'
 import { FaSkull } from 'react-icons/fa6'
 import { useAuth } from '../lib/auth-context'
 import ClientOnly from '../components/client-only'
@@ -130,6 +129,62 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-950 text-[#F8F8FF]">
+      {/* Navigation Header */}
+      <nav className="relative z-20 bg-black/20 backdrop-blur-sm border-b border-red-900/30">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-3 group">
+              <FaSkull className="text-2xl text-red-500 group-hover:animate-pulse" />
+              <span className="font-creepy text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
+                CREEPY GALLERY
+              </span>
+            </Link>
+
+            {/* Navigation Links */}
+            <ClientOnly>
+              <div className="flex items-center gap-4">
+                {user ? (
+                  <>
+                    <Link
+                      href="/upload"
+                      className="group flex items-center gap-2 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 px-4 py-2 rounded-lg transition-all duration-300 border border-red-600/30 hover:border-red-500/50"
+                    >
+                      <FaUpload className="w-4 h-4 group-hover:animate-bounce" />
+                      <span className="font-medium">Upload</span>
+                    </Link>
+                    <Link
+                      href="/profile"
+                      className="group flex items-center gap-2 bg-gray-700/20 hover:bg-gray-600/30 text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-all duration-300 border border-gray-600/30 hover:border-gray-500/50"
+                    >
+                      <FaUser className="w-4 h-4 group-hover:animate-pulse" />
+                      <span className="font-medium">{user.username}</span>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="group flex items-center gap-2 bg-gray-700/20 hover:bg-gray-600/30 text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-all duration-300 border border-gray-600/30 hover:border-gray-500/50"
+                    >
+                      <FaSignInAlt className="w-4 h-4" />
+                      <span className="font-medium">Login</span>
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="group flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-lg hover:shadow-red-900/50 border border-red-500/30"
+                    >
+                      <FaUserPlus className="w-4 h-4" />
+                      <span className="font-medium">Sign Up</span>
+                    </Link>
+                  </>
+                )}
+              </div>
+            </ClientOnly>
+          </div>
+        </div>
+      </nav>
+
       {/* Atmospheric Header */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
@@ -177,14 +232,14 @@ export default function Home() {
                   className="group relative bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 inline-flex items-center gap-3 shadow-lg hover:shadow-red-900/50 border border-red-500/30"
                 >
                   <FaUpload className="w-5 h-5 group-hover:animate-bounce" />
-                  <span className="tracking-wide">SUMMON FIRST IMAGE</span>
+                  <span className="tracking-wide">UPLOAD FIRST IMAGE</span>
                 </Link>
               ) : (
                 <Link
                   href="/signup"
                   className="group relative bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-red-900/50 border border-red-500/30"
                 >
-                  <span className="tracking-wide">JOIN THE DARKNESS</span>
+                  <span className="tracking-wide">GET STARTED</span>
                 </Link>
               )}
             </ClientOnly>
