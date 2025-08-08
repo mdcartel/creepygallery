@@ -130,43 +130,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black text-[#F8F8FF]">
-      {/* Header */}
-      <header className="border-b border-zinc-800 bg-black/90 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="font-creepy text-2xl md:text-3xl text-[#B2002D]">CREEPYGALLERY</h1>
-            <p className="hidden md:block text-zinc-400 text-sm">Discover cursed images from the shadows</p>
-          </div>
-          
-          <ClientOnly>
-            <div className="flex items-center gap-4">
-              {user ? (
-                <>
-                  <span className="text-sm text-zinc-300">Welcome, {user.username}</span>
-                  <Link 
-                    href="/upload" 
-                    className="bg-[#B2002D] hover:bg-[#8B0000] text-[#F8F8FF] px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
-                  >
-                    <FaUpload className="w-4 h-4" />
-                    Upload
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link href="/login" className="text-zinc-300 hover:text-[#F8F8FF] text-sm">Sign In</Link>
-                  <Link 
-                    href="/signup" 
-                    className="bg-[#B2002D] hover:bg-[#8B0000] text-[#F8F8FF] px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    Join
-                  </Link>
-                </>
-              )}
-            </div>
-          </ClientOnly>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-8">
         {loading ? (
