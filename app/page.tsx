@@ -129,60 +129,93 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-[#F8F8FF]">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-950 text-[#F8F8FF]">
+      {/* Atmospheric Header */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
+        <div className="relative z-10 text-center py-16 px-4">
+          <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-800 mb-4 tracking-wider">
+            CREEPY GALLERY
+          </h1>
+          <p className="text-xl md:text-2xl text-gray-300 mb-8 font-light tracking-wide">
+            Where nightmares become art
+          </p>
+          <div className="flex justify-center items-center gap-4 text-red-400">
+            <div className="w-16 h-px bg-gradient-to-r from-transparent to-red-500"></div>
+            <FaSkull className="text-2xl animate-pulse" />
+            <div className="w-16 h-px bg-gradient-to-l from-transparent to-red-500"></div>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 pb-16">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#B2002D] mb-4"></div>
-            <p className="text-zinc-400">Loading cursed images...</p>
+          <div className="flex flex-col items-center justify-center py-32">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-900/30 border-t-red-500"></div>
+              <FaSkull className="absolute inset-0 m-auto text-red-500 text-xl animate-pulse" />
+            </div>
+            <p className="text-gray-300 mt-6 text-lg tracking-wide">Summoning dark visions...</p>
           </div>
         ) : galleryItems.length === 0 ? (
-          <div className="text-center py-20">
-            <FaArrowUp className="text-6xl text-[#8B0000] mb-6 mx-auto rotate-180" />
-            <h2 className="text-3xl font-creepy mb-4">The Gallery Awaits</h2>
-            <p className="text-zinc-400 mb-8 max-w-md mx-auto">
-              No cursed images have been summoned yet. Be the first to share your dark creations.
+          <div className="text-center py-32">
+            <div className="relative mb-8">
+              <div className="absolute inset-0 bg-red-500/20 blur-3xl rounded-full"></div>
+              <FaSkull className="relative text-8xl text-red-500 mx-auto animate-pulse" />
+            </div>
+            <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
+              The Void Awaits
+            </h2>
+            <p className="text-gray-400 mb-12 max-w-lg mx-auto text-lg leading-relaxed">
+              No nightmares have been captured yet. Be the first to unleash your darkest visions upon this realm.
             </p>
             <ClientOnly>
               {user ? (
                 <Link 
                   href="/upload" 
-                  className="bg-[#B2002D] hover:bg-[#8B0000] text-[#F8F8FF] px-6 py-3 rounded-lg font-medium transition-colors inline-flex items-center gap-2"
+                  className="group relative bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 inline-flex items-center gap-3 shadow-lg hover:shadow-red-900/50 border border-red-500/30"
                 >
-                  <FaUpload className="w-4 h-4" />
-                  Upload First Image
+                  <FaUpload className="w-5 h-5 group-hover:animate-bounce" />
+                  <span className="tracking-wide">SUMMON FIRST NIGHTMARE</span>
                 </Link>
               ) : (
                 <Link 
                   href="/signup" 
-                  className="bg-[#B2002D] hover:bg-[#8B0000] text-[#F8F8FF] px-6 py-3 rounded-lg font-medium transition-colors"
+                  className="group relative bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-red-900/50 border border-red-500/30"
                 >
-                  Join to Upload
+                  <span className="tracking-wide">JOIN THE DARKNESS</span>
                 </Link>
               )}
             </ClientOnly>
           </div>
         ) : (
           <>
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-creepy mb-4">Gallery of Shadows</h2>
-              <p className="text-zinc-300 max-w-2xl mx-auto mb-4">
-                Explore the darkest corners of imagination. Each image tells a story of fear, mystery, and the supernatural.
+            <div className="text-center mb-16">
+              <div className="relative mb-6">
+                <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-red-500 to-red-600 mb-4 tracking-wider">
+                  GALLERY OF NIGHTMARES
+                </h2>
+                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
+              </div>
+              <p className="text-gray-300 max-w-3xl mx-auto mb-8 text-lg leading-relaxed">
+                Venture into the abyss of human imagination. Each cursed image harbors secrets of terror, 
+                mystery, and the supernatural realm beyond mortal comprehension.
               </p>
               <button 
                 onClick={fetchGalleryItems}
-                className="text-zinc-400 hover:text-[#B2002D] text-sm transition-colors"
+                className="group bg-gray-800/50 hover:bg-red-900/30 border border-red-800/30 hover:border-red-600/50 text-gray-300 hover:text-red-400 px-6 py-3 rounded-xl transition-all duration-300 inline-flex items-center gap-2 backdrop-blur-sm"
               >
-                🔄 Refresh Gallery
+                <span className="group-hover:animate-spin">🔄</span>
+                <span className="font-medium tracking-wide">REFRESH VISIONS</span>
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
               {galleryItems.map(item => (
                 <div 
                   key={item.id} 
-                  className="bg-[#1A1A1A] border border-[#8B0000] rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow"
+                  className="group relative"
                   onMouseEnter={(e) => {
                     const overlay = e.currentTarget.querySelector('.hover-overlay') as HTMLElement;
                     if (overlay) overlay.style.opacity = '1';
@@ -192,18 +225,21 @@ export default function Home() {
                     if (overlay) overlay.style.opacity = '0';
                   }}
                 >
-                  <div 
-                    onClick={() => handleImageClick(item)}
-                    style={{
-                      width: '100%',
-                      aspectRatio: '1',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      cursor: 'pointer',
-                      backgroundColor: '#27272a',
-                      borderRadius: '12px'
-                    }}
-                  >
+                  {/* Glowing border effect */}
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl blur opacity-0 group-hover:opacity-75 transition duration-500"></div>
+                  
+                  <div className="relative bg-gradient-to-br from-gray-900 to-black border border-red-900/30 rounded-2xl overflow-hidden shadow-2xl hover:shadow-red-900/20 transition-all duration-500 group-hover:scale-[1.02]">
+                    <div 
+                      onClick={() => handleImageClick(item)}
+                      style={{
+                        width: '100%',
+                        aspectRatio: '1',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        cursor: 'pointer',
+                        backgroundColor: '#1a1a1a'
+                      }}
+                    >
                     {item.image_url ? (
                       <img 
                         src={item.image_url} 
@@ -241,66 +277,74 @@ export default function Home() {
                       </div>
                     )}
                     
-                    {/* Hover overlay */}
-                    <div 
-                      style={{
-                        position: 'absolute',
-                        top: '0',
-                        left: '0',
-                        right: '0',
-                        bottom: '0',
-                        backgroundColor: 'rgba(0,0,0,0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        opacity: '0',
-                        transition: 'opacity 0.3s ease',
-                        zIndex: '10',
-                        pointerEvents: 'none'
-                      }}
-                      className="hover-overlay"
-                    >
-                      <span style={{
-                        color: 'white',
-                        fontSize: '0.875rem',
-                        fontWeight: '500',
-                        backgroundColor: 'rgba(0,0,0,0.6)',
-                        padding: '4px 12px',
-                        borderRadius: '9999px'
-                      }}>
-                        Click to view
-                      </span>
+                      {/* Hover overlay */}
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          top: '0',
+                          left: '0',
+                          right: '0',
+                          bottom: '0',
+                          background: 'linear-gradient(45deg, rgba(139,0,0,0.8), rgba(0,0,0,0.9))',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          opacity: '0',
+                          transition: 'opacity 0.3s ease',
+                          zIndex: '10',
+                          pointerEvents: 'none'
+                        }}
+                        className="hover-overlay"
+                      >
+                        <div style={{
+                          color: 'white',
+                          fontSize: '0.875rem',
+                          fontWeight: '600',
+                          backgroundColor: 'rgba(139,0,0,0.9)',
+                          padding: '8px 16px',
+                          borderRadius: '8px',
+                          border: '1px solid rgba(255,255,255,0.2)',
+                          backdropFilter: 'blur(4px)',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.5px'
+                        }}>
+                          👁️ View
+                        </div>
+                      </div>
                     </div>
-                  </div>
                   
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-[#F8F8FF] mb-2 truncate">{item.title}</h3>
-                    
-                    <div className="flex items-center justify-between text-xs text-zinc-400 mb-2">
-                      <span className="flex items-center gap-1">
-                        <FaUser className="w-3 h-3" />
-                        {item.author}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <FaRegCalendarAlt className="w-3 h-3" />
-                        {formatDate(item.date_uploaded)}
-                      </span>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {item.tags.slice(0, 3).map((tag, index) => (
-                        <span key={index} className="bg-[#B2002D] text-xs px-2 py-1 rounded-full text-[#F8F8FF]">
-                          #{tag}
+                    <div className="p-5 bg-gradient-to-t from-black/80 to-transparent">
+                      <h3 className="text-lg font-bold text-white mb-3 truncate tracking-wide">{item.title}</h3>
+                      
+                      <div className="flex items-center justify-between text-xs text-gray-400 mb-3">
+                        <span className="flex items-center gap-2 bg-red-900/20 px-2 py-1 rounded-full border border-red-800/30">
+                          <FaUser className="w-3 h-3 text-red-400" />
+                          <span className="text-gray-300">{item.author}</span>
                         </span>
-                      ))}
-                      {item.tags.length > 3 && (
-                        <span className="text-xs text-zinc-400">+{item.tags.length - 3}</span>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <SkullRating level={item.chill_level} />
-                      <span className="text-xs text-zinc-400">{item.downloads} views</span>
+                        <span className="flex items-center gap-1 text-gray-500">
+                          <FaRegCalendarAlt className="w-3 h-3" />
+                          {formatDate(item.date_uploaded)}
+                        </span>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {item.tags.slice(0, 3).map((tag, index) => (
+                          <span key={index} className="bg-gradient-to-r from-red-600 to-red-700 text-xs px-3 py-1 rounded-full text-white font-medium border border-red-500/30">
+                            #{tag}
+                          </span>
+                        ))}
+                        {item.tags.length > 3 && (
+                          <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">+{item.tags.length - 3}</span>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-400 font-medium">FEAR:</span>
+                          <SkullRating level={item.chill_level} />
+                        </div>
+                        <span className="text-xs text-gray-500 bg-gray-800/50 px-2 py-1 rounded-full">{item.downloads} views</span>
+                      </div>
                     </div>
                   </div>
                 </div>
