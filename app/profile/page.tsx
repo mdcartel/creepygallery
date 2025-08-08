@@ -72,7 +72,6 @@ export default function ProfilePage() {
 
                   {/* Account Details */}
                   <div className="border-t border-zinc-800 pt-6">
-                    <h3 className="text-lg font-semibold text-white mb-4">Account Information</h3>
                     <div className="space-y-4">
                       <div className="flex justify-between items-center py-3 border-b border-zinc-800">
                         <span className="text-zinc-300">Username</span>
@@ -95,7 +94,6 @@ export default function ProfilePage() {
               <div className="space-y-6">
                 {/* Quick Stats */}
                 <div className="bg-[#1A1A1A] border border-zinc-800 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Statistics</h3>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-lg">
                       <div className="flex items-center gap-3">
@@ -137,7 +135,6 @@ export default function ProfilePage() {
 
                 {/* Quick Actions */}
                 <div className="bg-[#1A1A1A] border border-zinc-800 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
                   <div className="space-y-3">
                     <button className="w-full flex items-center gap-3 p-3 bg-[#B2002D] hover:bg-[#8B0000] text-white rounded-lg transition-colors">
                       <FaUpload />
