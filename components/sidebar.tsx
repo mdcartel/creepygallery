@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react'
-import { FaHome, FaImages, FaUpload, FaUser, FaLock, FaCrown, FaMoon, FaEye, FaUserCircle, FaSignOutAlt } from "react-icons/fa"
+import { FaHome, FaImages, FaUpload, FaUser, FaEye, FaUserCircle, FaSignOutAlt, FaChartBar } from "react-icons/fa"
 import { useAuth } from '../lib/auth-context'
 import Link from 'next/link'
 import ClientOnly from './client-only'
@@ -11,16 +11,13 @@ interface NavItem {
   icon: React.ReactElement;
   href: string;
   requiresAuth?: boolean;
-  locked?: boolean;
   badge?: string;
 }
 
 const navItems: NavItem[] = [
-  { label: "Home", icon: <FaHome />, href: "/" },
+  { label: "Gallery", icon: <FaHome />, href: "/" },
   { label: "Upload", icon: <FaUpload />, href: "/upload", requiresAuth: true },
-  { label: "Profile", icon: <FaUser />, href: "/profile", requiresAuth: true },
-  { label: "Darkroom", icon: <FaMoon />, locked: true, href: "/darkroom" },
-  { label: "Admin Ritual", icon: <FaCrown />, locked: true, href: "/admin-ritual" },
+  { label: "My Profile", icon: <FaUser />, href: "/profile", requiresAuth: true },
 ]
 
 export default function Sidebar() {
@@ -33,11 +30,13 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-[#18181b] flex flex-col justify-between min-h-screen p-4 border-r border-zinc-800">
       <div>
-        <div className="flex items-center gap-2 mb-8">
-          <span className="text-2xl"><FaEye /></span>
+        <div className="flex items-center gap-3 mb-10">
+          <div className="w-10 h-10 bg-[#B2002D] rounded-lg flex items-center justify-center">
+            <FaImages className="text-white text-xl" />
+          </div>
           <div>
-            <div className="font-bold text-lg tracking-widest">GALLERY</div>
-            <div className="text-xs text-zinc-400">of Shadows</div>
+            <div className="font-bold text-xl text-white">CreepyGallery</div>
+            <div className="text-sm text-zinc-400">Image Sharing Platform</div>
           </div>
         </div>
         <nav className="flex flex-col gap-1">
@@ -49,11 +48,10 @@ export default function Sidebar() {
             
             return (
               <Link key={item.label} href={item.href}>
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer text-zinc-400 hover:bg-zinc-800 hover:text-white"> 
-                  <span>{item.icon}</span>
-                  <span className="flex-1">{item.label}</span>
-                  {item.badge && <span className="bg-red-700 text-xs px-2 py-0.5 rounded-full font-bold">{item.badge}</span>}
-                  {item.locked && <FaLock className="ml-2 text-zinc-600" />}
+                <div className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-zinc-300 hover:bg-[#B2002D] hover:text-white transition-all duration-200"> 
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="flex-1 font-medium">{item.label}</span>
+                  {item.badge && <span className="bg-[#B2002D] text-xs px-2 py-1 rounded-full font-bold">{item.badge}</span>}
                 </div>
               </Link>
             );
@@ -61,54 +59,60 @@ export default function Sidebar() {
           
           {/* Show auth links for non-logged in users */}
           {!user && (
-            <>
+            <div className="mt-6 pt-6 border-t border-zinc-700">
               <Link href="/login">
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer text-zinc-400 hover:bg-zinc-800 hover:text-white">
-                  <FaUser />
-                  <span className="flex-1">Sign In</span>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-zinc-300 hover:bg-zinc-700 hover:text-white transition-all duration-200 mb-2">
+                  <FaUser className="text-lg" />
+                  <span className="flex-1 font-medium">Sign In</span>
                 </div>
               </Link>
               <Link href="/signup">
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer text-[#B2002D] hover:bg-zinc-800 hover:text-white">
-                  <FaUserCircle />
-                  <span className="flex-1">Join Gallery</span>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer bg-[#B2002D] text-white hover:bg-[#8B0000] transition-all duration-200">
+                  <FaUserCircle className="text-lg" />
+                  <span className="flex-1 font-medium">Create Account</span>
                 </div>
               </Link>
-            </>
+            </div>
           )}
         </nav>
         {user && (
-          <div className="mt-8">
-            <div className="text-xs text-zinc-400 mb-2">Your Darkness</div>
-            <div className="flex items-center justify-between px-3 py-2">
-              <span>Uploads</span>
-              <span className="bg-zinc-800 px-2 py-0.5 rounded-full text-xs">0</span>
-            </div>
-            <div className="flex items-center justify-between px-3 py-2">
-              <span>Fear Rating</span>
-              <span className="flex gap-1">
-                {[0,1,2,3,4].map((i) => (
-                  <span key={i} className={`w-2 h-2 rounded-full ${i < 2 ? "bg-red-700" : "bg-zinc-700"}`}></span>
-                ))}
-              </span>
+          <div className="mt-8 pt-6 border-t border-zinc-700">
+            <div className="text-sm text-zinc-400 mb-4 font-medium">Statistics</div>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between px-4 py-2 bg-zinc-800 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <FaUpload className="text-[#B2002D]" />
+                  <span className="text-sm">My Uploads</span>
+                </div>
+                <span className="bg-[#B2002D] px-2 py-1 rounded-full text-xs font-bold">0</span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-2 bg-zinc-800 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <FaChartBar className="text-[#B2002D]" />
+                  <span className="text-sm">Total Views</span>
+                </div>
+                <span className="bg-[#B2002D] px-2 py-1 rounded-full text-xs font-bold">0</span>
+              </div>
             </div>
           </div>
         )}
       </div>
       <ClientOnly>
-        <div className="flex items-center gap-3 p-3 border-t border-zinc-800 mt-8">
-          <FaUserCircle className="text-3xl text-zinc-400" />
+        <div className="flex items-center gap-3 p-4 border-t border-zinc-700 mt-6 bg-zinc-800 rounded-lg">
+          <div className="w-10 h-10 bg-[#B2002D] rounded-full flex items-center justify-center">
+            <FaUserCircle className="text-white text-xl" />
+          </div>
           <div className="flex-1">
-            <div className="font-semibold">{user?.username || 'Guest'}</div>
-            <div className="text-xs text-zinc-500">{user?.email || 'Not signed in'}</div>
+            <div className="font-semibold text-white">{user?.username || 'Guest'}</div>
+            <div className="text-xs text-zinc-400">{user?.email || 'Not signed in'}</div>
           </div>
           {user && (
             <button
               onClick={handleLogout}
-              className="text-zinc-600 hover:text-red-500 cursor-pointer transition-colors"
-              title="Logout"
+              className="text-zinc-400 hover:text-[#B2002D] cursor-pointer transition-colors p-2"
+              title="Sign Out"
             >
-              <FaSignOutAlt />
+              <FaSignOutAlt className="text-lg" />
             </button>
           )}
         </div>
