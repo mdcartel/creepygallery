@@ -161,8 +161,6 @@ export default function UploadPage() {
     <ProtectedRoute>
       <MainContent>
         <div className="bg-black text-[#F8F8FF] flex flex-col items-center justify-center min-h-screen">
-          <h1 className="text-4xl font-creepy mb-4">Upload Portal</h1>
-          <p className="text-lg opacity-70 mb-6">Summon your most cursed images here...</p>
           <form className="flex flex-col gap-4 w-full max-w-md" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-2">
               <label className="text-sm text-zinc-300">Select Image</label>

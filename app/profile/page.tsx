@@ -36,12 +36,6 @@ export default function ProfilePage() {
       <MainContent>
         <div className="bg-black text-[#F8F8FF] min-h-screen p-6">
           <div className="max-w-4xl mx-auto">
-            {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-white mb-2">My Profile</h1>
-              <p className="text-zinc-400">Manage your account and view your activity</p>
-            </div>
-
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Profile Info */}
               <div className="lg:col-span-2">
