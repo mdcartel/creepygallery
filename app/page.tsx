@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { FaArrowUp, FaRegCalendarAlt, FaUpload, FaUser, FaSignInAlt, FaUserPlus } from 'react-icons/fa'
+import { FaArrowUp, FaRegCalendarAlt, FaUpload, FaUser, FaSignInAlt, FaUserPlus, FaSignOutAlt } from 'react-icons/fa'
 import { FaSkull } from 'react-icons/fa6'
 import { useAuth } from '../lib/auth-context'
 import ClientOnly from '../components/client-only'
@@ -30,7 +30,7 @@ function SkullRating({ level }: { level: number }) {
 }
 
 export default function Home() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
@@ -160,6 +160,13 @@ export default function Home() {
                       <FaUser className="w-4 h-4 group-hover:animate-pulse" />
                       <span className="font-medium">{user.username}</span>
                     </Link>
+                    <button
+                      onClick={logout}
+                      className="group flex items-center gap-2 bg-gray-800/20 hover:bg-red-600/20 text-gray-400 hover:text-red-400 px-4 py-2 rounded-lg transition-all duration-300 border border-gray-700/30 hover:border-red-600/50"
+                    >
+                      <FaSignOutAlt className="w-4 h-4" />
+                      <span className="font-medium">Logout</span>
+                    </button>
                   </>
                 ) : (
                   <>
