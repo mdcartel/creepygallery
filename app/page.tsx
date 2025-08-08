@@ -134,7 +134,7 @@ export default function Home() {
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
         <div className="relative z-10 text-center py-16 px-4">
-          <h1 className="text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-800 mb-4 tracking-wider">
+          <h1 className="font-creepy text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-800 mb-4 tracking-wider">
             CREEPY GALLERY
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 font-light tracking-wide">
@@ -164,7 +164,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-red-500/20 blur-3xl rounded-full"></div>
               <FaSkull className="relative text-8xl text-red-500 mx-auto animate-pulse" />
             </div>
-            <h2 className="text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
+            <h2 className="font-creepy text-4xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
               The Void Awaits
             </h2>
             <p className="text-gray-400 mb-12 max-w-lg mx-auto text-lg leading-relaxed">
@@ -193,7 +193,7 @@ export default function Home() {
           <>
             <div className="text-center mb-16">
               <div className="relative mb-6">
-                <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-red-500 to-red-600 mb-4 tracking-wider">
+                <h2 className="font-creepy text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-red-500 to-red-600 mb-4 tracking-wider">
                   GALLERY OF NIGHTMARES
                 </h2>
                 <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
