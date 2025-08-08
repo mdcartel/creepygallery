@@ -177,7 +177,7 @@ export default function Home() {
                   className="group relative bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-xl font-bold transition-all duration-300 inline-flex items-center gap-3 shadow-lg hover:shadow-red-900/50 border border-red-500/30"
                 >
                   <FaUpload className="w-5 h-5 group-hover:animate-bounce" />
-                  <span className="tracking-wide">SUMMON FIRST NIGHTMARE</span>
+                  <span className="tracking-wide">SUMMON FIRST IMAGE</span>
                 </Link>
               ) : (
                 <Link
