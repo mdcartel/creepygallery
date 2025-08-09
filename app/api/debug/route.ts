@@ -11,7 +11,7 @@ export async function GET() {
       database: { items: 0, error: null },
       memory: { items: 0 },
       file: { items: 0 },
-      databaseStatus: null
+      databaseStatus: null as any
     }
   };
 
