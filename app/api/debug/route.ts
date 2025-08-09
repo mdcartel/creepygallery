@@ -5,13 +5,13 @@ import { loadGalleryItems as getFileItems } from '../../../lib/file-storage';
 import { getDatabaseStatus } from '../../../lib/db';
 
 export async function GET() {
-  const debug = {
+  const debug: any = {
     timestamp: new Date().toISOString(),
     sources: {
       database: { items: 0, error: null },
-      memory: { items: 0 },
-      file: { items: 0 },
-      databaseStatus: null as any
+      memory: { items: 0, error: null },
+      file: { items: 0, error: null },
+      databaseStatus: null
     }
   };
 
@@ -35,7 +35,7 @@ export async function GET() {
     const memoryItems = getMemoryItems();
     debug.sources.memory.items = memoryItems.length;
   } catch (error: any) {
-    debug.sources.memory = { items: 0, error: error.message };
+    debug.sources.memory.error = error.message;
   }
 
   // Check file items
@@ -43,7 +43,7 @@ export async function GET() {
     const fileItems = getFileItems();
     debug.sources.file.items = fileItems.length;
   } catch (error: any) {
-    debug.sources.file = { items: 0, error: error.message };
+    debug.sources.file.error = error.message;
   }
 
   return NextResponse.json(debug);
