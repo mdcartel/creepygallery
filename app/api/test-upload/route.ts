@@ -15,7 +15,7 @@ export async function POST() {
     user_id: 'debug-user'
   };
 
-  const results = {
+  const results: any = {
     memory: null,
     file: null,
     database: null
