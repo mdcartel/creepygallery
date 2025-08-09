@@ -97,6 +97,55 @@ export async function sqlQuery<T = any>(strings: TemplateStringsArray, ...values
         } else {
           resolve([]);
         }
+      } else if (query.includes('insert into gallery_items')) {
+        // Handle gallery item insertion
+        const [title, image_url, author, tags, chill_level, user_id] = values;
+        const newItem = {
+          id: Date.now() + Math.random(), // Generate unique ID
+          title,
+          image_url,
+          author,
+          tags,
+          chill_level,
+          user_id,
+          date_uploaded: new Date(),
+          downloads: 0
+        };
+        
+        fallbackDatabase.gallery_items.unshift(newItem); // Add to beginning
+        
+        // Keep only last 50 items to prevent memory issues
+        if (fallbackDatabase.gallery_items.length > 50) {
+          fallbackDatabase.gallery_items = fallbackDatabase.gallery_items.slice(0, 50);
+        }
+        
+        resolve([newItem] as T[]);
+      } else if (query.includes('select * from gallery_items')) {
+        // Handle gallery items retrieval
+        const items = [...fallbackDatabase.gallery_items].sort((a, b) => 
+          new Date(b.date_uploaded).getTime() - new Date(a.date_uploaded).getTime()
+        );
+        resolve(items as T[]);
+      } else if (query.includes('update gallery_items set downloads')) {
+        // Handle download count update
+        const id = values[0];
+        const item = fallbackDatabase.gallery_items.find(item => item.id === id);
+        if (item) {
+          item.downloads = (item.downloads || 0) + 1;
+        }
+        resolve([] as T[]);
+      } else if (query.includes('delete from gallery_items')) {
+        // Handle gallery item deletion
+        const [id, user_id] = values;
+        const index = fallbackDatabase.gallery_items.findIndex(item => 
+          item.id === id && item.user_id === user_id
+        );
+        if (index !== -1) {
+          fallbackDatabase.gallery_items.splice(index, 1);
+          resolve([{ deleted: true }] as T[]);
+        } else {
+          resolve([]);
+        }
       } else {
         console.warn('Unknown query in fallback mode:', query);
         resolve([]);
