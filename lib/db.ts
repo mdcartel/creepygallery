@@ -17,21 +17,37 @@ let databaseAvailable = false;
 try {
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+    ssl: { rejectUnauthorized: false }, // Always use SSL for Neon
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 30000,
+    max: 10
   });
   
-  // Test connection
-  pool.connect()
-    .then(client => {
-      console.log('✅ Database connection successful!');
-      databaseAvailable = true;
-      client.release();
-      initializeDatabase();
-    })
-    .catch(error => {
-      console.warn('⚠️ Database connection failed, using in-memory storage:', error.message);
-      databaseAvailable = false;
-    });
+  // Test connection with retry logic
+  async function testConnection(retries = 3) {
+    for (let i = 0; i < retries; i++) {
+      try {
+        console.log(`🔄 Attempting database connection (attempt ${i + 1}/${retries})...`);
+        const client = await pool!.connect();
+        console.log('✅ Database connection successful!');
+        databaseAvailable = true;
+        client.release();
+        await initializeDatabase();
+        return;
+      } catch (error: any) {
+        console.warn(`❌ Database connection attempt ${i + 1} failed:`, error.message);
+        if (i === retries - 1) {
+          console.warn('⚠️ All database connection attempts failed, using in-memory storage');
+          databaseAvailable = false;
+        } else {
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
+    }
+  }
+  
+  testConnection();
 } catch (error) {
   console.warn('⚠️ Database initialization failed, using in-memory storage:', error);
   databaseAvailable = false;

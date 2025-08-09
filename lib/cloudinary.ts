@@ -78,3 +78,38 @@ export async function deleteImageFromCloudinary(publicId: string): Promise<void>
     throw error;
   }
 }
+
+export async function getAllImagesFromCloudinary(): Promise<any[]> {
+  try {
+    console.log('🔄 Fetching images from Cloudinary...');
+    
+    // Search for all images in the creepy-gallery folder
+    const result = await cloudinary.search
+      .expression('folder:creepy-gallery')
+      .sort_by([['created_at', 'desc']])
+      .max_results(50)
+      .execute();
+    
+    console.log(`📸 Found ${result.resources.length} images in Cloudinary`);
+    
+    return result.resources.map((resource: any) => ({
+      id: resource.public_id.split('_')[0], // Extract timestamp from public_id
+      title: resource.public_id.split('_').slice(1).join('_') || 'Untitled',
+      image_url: resource.secure_url,
+      date_uploaded: resource.created_at,
+      downloads: 0, // Default since we can't get this from Cloudinary
+      author: 'Unknown', // Default since we can't get this from Cloudinary
+      tags: ['recovered'], // Tag to indicate these are recovered images
+      chill_level: 3, // Default chill level
+      user_id: 'recovered-user',
+      cloudinary_public_id: resource.public_id,
+      width: resource.width,
+      height: resource.height,
+      format: resource.format,
+      bytes: resource.bytes
+    }));
+  } catch (error) {
+    console.error('❌ Error fetching images from Cloudinary:', error);
+    return [];
+  }
+}

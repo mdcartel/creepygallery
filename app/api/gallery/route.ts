@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '../../../lib/auth';
 import { addGalleryItem, getAllGalleryItems as getMemoryItems } from '../../../lib/memory-storage';
-import { uploadImageToCloudinary } from '../../../lib/cloudinary';
+import { uploadImageToCloudinary, getAllImagesFromCloudinary } from '../../../lib/cloudinary';
 import { getAllGalleryItems, createGalleryItem } from '../../../lib/gallery';
 
 // File validation utilities
@@ -43,8 +43,26 @@ export async function GET() {
       items.map(item => ({ id: item.id, title: item.title, author: item.author }))
     );
     
-    // Return with no-cache headers to ensure fresh data
-    return NextResponse.json(items, {
+    // If database returns items, use them
+    if (items.length > 0) {
+      return NextResponse.json(items, {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'Surrogate-Control': 'no-store'
+        }
+      });
+    }
+    
+    // If database is empty, also check memory storage and combine
+    const memoryItems = getMemoryItems();
+    console.log(`💾 Also checking memory storage: ${memoryItems.length} items`);
+    
+    // Combine database and memory items (database items first)
+    const allItems = [...items, ...memoryItems];
+    
+    return NextResponse.json(allItems, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         'Pragma': 'no-cache',
@@ -53,14 +71,27 @@ export async function GET() {
       }
     });
   } catch (error) {
-    console.error('❌ Database error, falling back to memory storage:', error);
-    // Fallback to in-memory storage if database fails
-    const items = getMemoryItems();
-    console.log(`💾 Fetched ${items.length} items from memory storage:`,
-      items.map(item => ({ id: item.id, title: item.title, author: item.author }))
-    );
+    console.error('❌ Database error, trying Cloudinary and memory storage:', error);
     
-    return NextResponse.json(items, {
+    // Try to get images from Cloudinary first
+    let cloudinaryItems: any[] = [];
+    try {
+      cloudinaryItems = await getAllImagesFromCloudinary();
+      console.log(`☁️ Fetched ${cloudinaryItems.length} items from Cloudinary`);
+    } catch (cloudinaryError) {
+      console.error('❌ Cloudinary fetch also failed:', cloudinaryError);
+    }
+    
+    // Get memory storage items
+    const memoryItems = getMemoryItems();
+    console.log(`💾 Fetched ${memoryItems.length} items from memory storage`);
+    
+    // Combine Cloudinary and memory items (Cloudinary first since those are your uploaded images)
+    const allItems = [...cloudinaryItems, ...memoryItems];
+    
+    console.log(`📊 Total items from fallback sources: ${allItems.length}`);
+    
+    return NextResponse.json(allItems, {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         'Pragma': 'no-cache',
