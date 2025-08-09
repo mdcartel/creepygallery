@@ -17,18 +17,12 @@ let databaseAvailable = false;
 try {
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    statement_timeout: 30000,
-    query_timeout: 30000,
     ssl: { rejectUnauthorized: false },
-    connectionTimeoutMillis: 30000, // Increased timeout
+    connectionTimeoutMillis: 30000,
     idleTimeoutMillis: 60000,
-    max: 5, // Reduced max connections
-    min: 0,
-    acquireTimeoutMillis: 30000,
-    createTimeoutMillis: 30000,
-    destroyTimeoutMillis: 5000,
-    reapIntervalMillis: 1000,
-    createRetryIntervalMillis: 200
+    max: 5,
+    statement_timeout: 30000,
+    query_timeout: 30000
   });
   
   // Test connection with retry logic
