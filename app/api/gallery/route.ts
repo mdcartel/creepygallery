@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '../../../lib/auth';
 import { addGalleryItem, getAllGalleryItems as getMemoryItems } from '../../../lib/memory-storage';
+import { addGalleryItemToFile, loadGalleryItems as getFileItems } from '../../../lib/file-storage';
 import { uploadImageToCloudinary, getAllImagesFromCloudinary } from '../../../lib/cloudinary';
 import { getAllGalleryItems, createGalleryItem } from '../../../lib/gallery';
 
@@ -86,8 +87,12 @@ export async function GET() {
     const memoryItems = getMemoryItems();
     console.log(`💾 Fetched ${memoryItems.length} items from memory storage`);
     
-    // Combine Cloudinary and memory items (Cloudinary first since those are your uploaded images)
-    const allItems = [...cloudinaryItems, ...memoryItems];
+    // Also try file storage for production persistence
+    const fileItems = getFileItems();
+    console.log(`📁 Fetched ${fileItems.length} items from file storage`);
+    
+    // Combine all sources (Cloudinary first, then file storage, then memory)
+    const allItems = [...cloudinaryItems, ...fileItems, ...memoryItems];
     
     console.log(`📊 Total items from fallback sources: ${allItems.length}`);
     
@@ -259,8 +264,8 @@ export async function POST(request: NextRequest) {
         author: user.username
       });
       
-      // Fallback to in-memory storage only
-      const savedItem = addGalleryItem({
+      // Fallback to file storage and memory storage
+      const savedItem = addGalleryItemToFile({
         title,
         image_url: imageUrl,
         date_uploaded: new Date().toISOString(),
@@ -271,7 +276,19 @@ export async function POST(request: NextRequest) {
         user_id: user.id
       });
       
-      console.log('💾 Saved to memory storage as fallback:', {
+      // Also save to memory as backup
+      addGalleryItem({
+        title,
+        image_url: imageUrl,
+        date_uploaded: new Date().toISOString(),
+        downloads: 0,
+        author: user.username,
+        tags: tagsArray,
+        chill_level: chillLevel,
+        user_id: user.id
+      });
+      
+      console.log('📁💾 Saved to file and memory storage as fallback:', {
         id: savedItem.id,
         title: savedItem.title,
         hasImageUrl: !!savedItem.image_url

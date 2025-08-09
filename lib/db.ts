@@ -17,10 +17,18 @@ let databaseAvailable = false;
 try {
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }, // Always use SSL for Neon
-    connectionTimeoutMillis: 10000,
-    idleTimeoutMillis: 30000,
-    max: 10
+    statement_timeout: 30000,
+    query_timeout: 30000,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 30000, // Increased timeout
+    idleTimeoutMillis: 60000,
+    max: 5, // Reduced max connections
+    min: 0,
+    acquireTimeoutMillis: 30000,
+    createTimeoutMillis: 30000,
+    destroyTimeoutMillis: 5000,
+    reapIntervalMillis: 1000,
+    createRetryIntervalMillis: 200
   });
   
   // Test connection with retry logic
