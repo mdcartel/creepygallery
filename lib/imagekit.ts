@@ -1,11 +1,27 @@
 import ImageKit from 'imagekit';
 
-// Configure ImageKit
-const imagekit = new ImageKit({
-  publicKey: process.env.IMAGEKIT_PUBLIC_KEY || '',
-  privateKey: process.env.IMAGEKIT_PRIVATE_KEY || '',
-  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || ''
-});
+// Configure ImageKit - lazy initialization to avoid build-time issues
+let imagekit: ImageKit | null = null;
+
+function getImageKit(): ImageKit {
+  if (!imagekit) {
+    const publicKey = process.env.IMAGEKIT_PUBLIC_KEY;
+    const privateKey = process.env.IMAGEKIT_PRIVATE_KEY;
+    const urlEndpoint = process.env.IMAGEKIT_URL_ENDPOINT;
+    
+    if (!publicKey || !privateKey || !urlEndpoint) {
+      throw new Error('ImageKit credentials not configured. Please set IMAGEKIT_PUBLIC_KEY, IMAGEKIT_PRIVATE_KEY, and IMAGEKIT_URL_ENDPOINT environment variables.');
+    }
+    
+    imagekit = new ImageKit({
+      publicKey,
+      privateKey,
+      urlEndpoint
+    });
+  }
+  
+  return imagekit;
+}
 
 export interface ImageKitUploadResult {
   fileId: string;
@@ -25,7 +41,7 @@ export async function uploadImageToImageKit(
   try {
     console.log('🔄 Uploading to ImageKit...');
     
-    const result = await imagekit.upload({
+    const result = await getImageKit().upload({
       file: buffer,
       fileName: `${Date.now()}_${filename}`,
       folder: '/creepy-gallery', // Organize images in a folder
@@ -77,7 +93,7 @@ export function generateImageKitThumbnail(url: string, width = 300, height = 300
 
 export async function deleteImageFromImageKit(fileId: string): Promise<void> {
   try {
-    await imagekit.deleteFile(fileId);
+    await getImageKit().deleteFile(fileId);
     console.log('✅ Image deleted from ImageKit:', fileId);
   } catch (error: any) {
     console.error('❌ Error deleting image from ImageKit:', error);
@@ -89,7 +105,7 @@ export async function getAllImagesFromImageKit(): Promise<any[]> {
   try {
     console.log('🔄 Fetching images from ImageKit...');
     
-    const result = await imagekit.listFiles({
+    const result = await getImageKit().listFiles({
       path: '/creepy-gallery',
       searchQuery: 'tags="creepy-gallery"',
       limit: 50,
