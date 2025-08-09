@@ -276,8 +276,8 @@ export async function POST(request: NextRequest) {
         user_id: user.id
       });
       
-      // Also save to memory as backup
-      addGalleryItem({
+      // Also save to memory and file storage as backup
+      const memoryItem = addGalleryItem({
         title,
         image_url: imageUrl,
         date_uploaded: new Date().toISOString(),
@@ -287,6 +287,8 @@ export async function POST(request: NextRequest) {
         chill_level: chillLevel,
         user_id: user.id
       });
+      
+      console.log('💾 Saved to memory storage:', memoryItem.id);
       
       console.log('📁💾 Saved to file and memory storage as fallback:', {
         id: savedItem.id,
