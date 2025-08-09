@@ -86,7 +86,7 @@ export async function getAllImagesFromCloudinary(): Promise<any[]> {
     // Search for all images in the creepy-gallery folder
     const result = await cloudinary.search
       .expression('folder:creepy-gallery')
-      .sort_by([['created_at', 'desc']])
+      .sort_by('created_at', 'desc')
       .max_results(50)
       .execute();
     
