@@ -4,6 +4,7 @@ import { addGalleryItem, getAllGalleryItems as getMemoryItems } from '../../../l
 import { addGalleryItemToFile, loadGalleryItems as getFileItems } from '../../../lib/file-storage';
 import { uploadImageToImageKit, getAllImagesFromImageKit } from '../../../lib/imagekit';
 import { getAllGalleryItems, createGalleryItem } from '../../../lib/gallery';
+import { saveToAllStorageSystems, recoverFromBackups } from '../../../lib/robust-storage';
 
 // File validation utilities
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -95,8 +96,12 @@ export async function GET() {
     const fileItems = getFileItems();
     console.log(`📁 Fetched ${fileItems.length} items from file storage`);
     
-    // Combine all sources (ImageKit first, then file storage, then memory)
-    const allItems = [...imagekitItems, ...fileItems, ...memoryItems];
+    // Also try to recover from permanent backups
+    const backupItems = recoverFromBackups();
+    console.log(`💾 Fetched ${backupItems.length} items from permanent backups`);
+    
+    // Combine all sources (ImageKit first, then file storage, then memory, then backups)
+    const allItems = [...imagekitItems, ...fileItems, ...memoryItems, ...backupItems];
     
     console.log(`📊 Total items from fallback sources: ${allItems.length}`);
     
@@ -184,126 +189,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Try to upload to Cloudinary, but fallback to base64 if it fails
-    const buffer = Buffer.from(bytes);
-    const filename = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
-    
-    let imageUrl: string;
-    let uploadMethod = 'base64'; // Default to base64 for now
-    
-    try {
-      console.log('🔄 Attempting ImageKit upload...');
-      const uploadResult = await uploadImageToImageKit(buffer, filename);
-      imageUrl = uploadResult.url;
-      uploadMethod = 'imagekit';
-      console.log('✅ Image uploaded to ImageKit:', uploadResult.fileId);
-    } catch (imagekitError: any) {
-      console.error('❌ ImageKit upload failed, using base64 fallback:', imagekitError?.message || imagekitError);
-      
-      // Fallback to base64 storage
-      if (buffer.length > 2000000) { // 2MB limit for base64
-        return NextResponse.json(
-          { error: 'Image is too large for storage. Please use an image smaller than 2MB.' },
-          { status: 400 }
-        );
-      }
-      
-      const base64 = buffer.toString('base64');
-      const mimeType = file.type;
-      imageUrl = `data:${mimeType};base64,${base64}`;
-      uploadMethod = 'base64';
-      console.log('💾 Using base64 storage as fallback');
-    }
-
     // Parse tags into array
     const tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
-    // Save to database (primary) and memory storage (backup)
-    try {
-      console.log('🔄 Attempting to save to database...', { 
-        title, 
-        author: user.username, 
-        tagsCount: tagsArray.length,
-        imageUrlLength: imageUrl.length,
-        chillLevel,
-        userId: user.id
-      });
+    // Use robust storage system that saves to ALL possible locations
+    const buffer = Buffer.from(bytes);
+    const filename = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+    
+    const storageResult = await saveToAllStorageSystems(buffer, filename, {
+      title,
+      date_uploaded: new Date().toISOString(),
+      downloads: 0,
+      author: user.username,
+      tags: tagsArray,
+      chill_level: chillLevel,
+      user_id: user.id
+    });
+
+    if (storageResult.success) {
+      console.log('✅ Photo saved successfully to multiple storage systems');
       
-      const savedItem = await createGalleryItem(
-        title,
-        imageUrl,
-        user.username,
-        tagsArray,
-        chillLevel,
-        user.id
+      // Add storage info to response
+      const responseItem = {
+        ...storageResult.finalItem,
+        storage_info: {
+          total_attempts: storageResult.results.length,
+          successful_saves: storageResult.results.filter(r => r.success).length,
+          storage_locations: storageResult.results.filter(r => r.success).map(r => r.location)
+        }
+      };
+      
+      return NextResponse.json(responseItem, { status: 201 });
+    } else {
+      console.error('❌ All storage systems failed');
+      return NextResponse.json(
+        { 
+          error: 'Failed to save image to any storage system',
+          storage_results: storageResult.results
+        },
+        { status: 500 }
       );
-      
-      console.log('✅ Successfully saved to database:', {
-        id: savedItem.id,
-        title: savedItem.title,
-        author: savedItem.author,
-        hasImageUrl: !!savedItem.image_url
-      });
-      
-      // Also save to memory storage as backup
-      const memoryItem = addGalleryItem({
-        title,
-        image_url: imageUrl,
-        date_uploaded: new Date().toISOString(),
-        downloads: 0,
-        author: user.username,
-        tags: tagsArray,
-        chill_level: chillLevel,
-        user_id: user.id
-      });
-      
-      console.log('💾 Also saved to memory storage:', memoryItem.id);
-      
-      return NextResponse.json(savedItem, { status: 201 });
-    } catch (dbError: any) {
-      console.error('❌ Database save failed:', {
-        error: dbError.message,
-        stack: dbError.stack,
-        title,
-        author: user.username
-      });
-      
-      // Fallback to file storage and memory storage
-      const savedItem = addGalleryItemToFile({
-        title,
-        image_url: imageUrl,
-        date_uploaded: new Date().toISOString(),
-        downloads: 0,
-        author: user.username,
-        tags: tagsArray,
-        chill_level: chillLevel,
-        user_id: user.id
-      });
-      
-      // Also save to memory and file storage as backup
-      const memoryItem = addGalleryItem({
-        title,
-        image_url: imageUrl,
-        date_uploaded: new Date().toISOString(),
-        downloads: 0,
-        author: user.username,
-        tags: tagsArray,
-        chill_level: chillLevel,
-        user_id: user.id
-      });
-      
-      console.log('💾 Saved to memory storage:', memoryItem.id);
-      
-      console.log('📁💾 Saved to file and memory storage as fallback:', {
-        id: savedItem.id,
-        title: savedItem.title,
-        hasImageUrl: !!savedItem.image_url
-      });
-      
-      return NextResponse.json({
-        ...savedItem,
-        message: 'Image saved (database temporarily unavailable)'
-      }, { status: 201 });
     }
 
   } catch (error) {
