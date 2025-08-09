@@ -56,12 +56,16 @@ export async function GET() {
       });
     }
     
-    // If database is empty, also check memory storage and combine
+    // Always check all storage systems and combine
     const memoryItems = getMemoryItems();
-    console.log(`💾 Also checking memory storage: ${memoryItems.length} items`);
+    console.log(`💾 Checking memory storage: ${memoryItems.length} items`);
     
-    // Combine database and memory items (database items first)
-    const allItems = [...items, ...memoryItems];
+    // Also try file storage for production persistence
+    const fileItems = getFileItems();
+    console.log(`📁 Fetched ${fileItems.length} items from file storage`);
+    
+    // Combine all items (database first, then file, then memory)
+    const allItems = [...items, ...fileItems, ...memoryItems];
     
     return NextResponse.json(allItems, {
       headers: {
