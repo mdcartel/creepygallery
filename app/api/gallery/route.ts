@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '../../../lib/auth';
 import { addGalleryItem, getAllGalleryItems as getMemoryItems } from '../../../lib/memory-storage';
 import { addGalleryItemToFile, loadGalleryItems as getFileItems } from '../../../lib/file-storage';
-import { uploadImageToCloudinary, getAllImagesFromCloudinary } from '../../../lib/cloudinary';
+import { uploadImageToImageKit, getAllImagesFromImageKit } from '../../../lib/imagekit';
 import { getAllGalleryItems, createGalleryItem } from '../../../lib/gallery';
 
 // File validation utilities
@@ -74,13 +74,13 @@ export async function GET() {
   } catch (error) {
     console.error('❌ Database error, trying Cloudinary and memory storage:', error);
     
-    // Try to get images from Cloudinary first
-    let cloudinaryItems: any[] = [];
+    // Try to get images from ImageKit first
+    let imagekitItems: any[] = [];
     try {
-      cloudinaryItems = await getAllImagesFromCloudinary();
-      console.log(`☁️ Fetched ${cloudinaryItems.length} items from Cloudinary`);
-    } catch (cloudinaryError) {
-      console.error('❌ Cloudinary fetch also failed:', cloudinaryError);
+      imagekitItems = await getAllImagesFromImageKit();
+      console.log(`📸 Fetched ${imagekitItems.length} items from ImageKit`);
+    } catch (imagekitError) {
+      console.error('❌ ImageKit fetch also failed:', imagekitError);
     }
     
     // Get memory storage items
@@ -91,8 +91,8 @@ export async function GET() {
     const fileItems = getFileItems();
     console.log(`📁 Fetched ${fileItems.length} items from file storage`);
     
-    // Combine all sources (Cloudinary first, then file storage, then memory)
-    const allItems = [...cloudinaryItems, ...fileItems, ...memoryItems];
+    // Combine all sources (ImageKit first, then file storage, then memory)
+    const allItems = [...imagekitItems, ...fileItems, ...memoryItems];
     
     console.log(`📊 Total items from fallback sources: ${allItems.length}`);
     
@@ -188,13 +188,13 @@ export async function POST(request: NextRequest) {
     let uploadMethod = 'base64'; // Default to base64 for now
     
     try {
-      console.log('🔄 Attempting Cloudinary upload...');
-      const uploadResult = await uploadImageToCloudinary(buffer, filename);
-      imageUrl = uploadResult.secure_url;
-      uploadMethod = 'cloudinary';
-      console.log('✅ Image uploaded to Cloudinary:', uploadResult.public_id);
-    } catch (cloudinaryError: any) {
-      console.error('❌ Cloudinary upload failed, using base64 fallback:', cloudinaryError?.message || cloudinaryError);
+      console.log('🔄 Attempting ImageKit upload...');
+      const uploadResult = await uploadImageToImageKit(buffer, filename);
+      imageUrl = uploadResult.url;
+      uploadMethod = 'imagekit';
+      console.log('✅ Image uploaded to ImageKit:', uploadResult.fileId);
+    } catch (imagekitError: any) {
+      console.error('❌ ImageKit upload failed, using base64 fallback:', imagekitError?.message || imagekitError);
       
       // Fallback to base64 storage
       if (buffer.length > 2000000) { // 2MB limit for base64
