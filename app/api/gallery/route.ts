@@ -188,8 +188,8 @@ export async function POST(request: NextRequest) {
       imageUrl = uploadResult.secure_url;
       uploadMethod = 'cloudinary';
       console.log('✅ Image uploaded to Cloudinary:', uploadResult.public_id);
-    } catch (cloudinaryError) {
-      console.error('❌ Cloudinary upload failed, using base64 fallback:', cloudinaryError.message);
+    } catch (cloudinaryError: any) {
+      console.error('❌ Cloudinary upload failed, using base64 fallback:', cloudinaryError?.message || cloudinaryError);
       
       // Fallback to base64 storage
       if (buffer.length > 2000000) { // 2MB limit for base64
