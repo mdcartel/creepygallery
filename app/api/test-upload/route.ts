@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { addGalleryItem } from '../../../lib/memory-storage';
-import { addGalleryItemToFile } from '../../../lib/file-storage';
+// Import file storage conditionally
+let fileStorage: any = null;
+if (process.env.NODE_ENV === 'development') {
+  try {
+    fileStorage = require('../../../lib/file-storage');
+  } catch (error) {
+    console.log('File storage not available');
+  }
+}
 import { createGalleryItem } from '../../../lib/gallery';
 
 export async function POST() {
@@ -29,12 +37,16 @@ export async function POST() {
     results.memory = { success: false, error: error.message };
   }
 
-  // Test file storage
-  try {
-    const fileItem = addGalleryItemToFile(testData);
-    results.file = { success: true, id: fileItem.id };
-  } catch (error: any) {
-    results.file = { success: false, error: error.message };
+  // Test file storage (development only)
+  if (fileStorage && process.env.NODE_ENV === 'development') {
+    try {
+      const fileItem = fileStorage.addGalleryItemToFile(testData);
+      results.file = { success: true, id: fileItem.id };
+    } catch (error: any) {
+      results.file = { success: false, error: error.message };
+    }
+  } else {
+    results.file = { success: false, error: 'File storage not available in production' };
   }
 
   // Test database storage

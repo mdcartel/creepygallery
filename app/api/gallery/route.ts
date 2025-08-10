@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '../../../lib/auth';
 import { addGalleryItem, getAllGalleryItems as getMemoryItems } from '../../../lib/memory-storage';
-import { addGalleryItemToFile, loadGalleryItems as getFileItems } from '../../../lib/file-storage';
 import { uploadImageToImageKit, getAllImagesFromImageKit } from '../../../lib/imagekit';
 import { getAllGalleryItems, createGalleryItem } from '../../../lib/gallery';
-import { saveToAllStorageSystems, recoverFromBackups } from '../../../lib/robust-storage';
+
+// Import file storage and robust storage conditionally
+let fileStorage: any = null;
+let robustStorage: any = null;
+
+if (process.env.NODE_ENV === 'development') {
+  try {
+    fileStorage = require('../../../lib/file-storage');
+    robustStorage = require('../../../lib/robust-storage');
+  } catch (error) {
+    console.log('File storage modules not available in production');
+  }
+}
 
 // File validation utilities
 const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
@@ -61,8 +72,8 @@ export async function GET() {
     const memoryItems = getMemoryItems();
     console.log(`💾 Checking memory storage: ${memoryItems.length} items`);
     
-    // Also try file storage for production persistence
-    const fileItems = getFileItems();
+    // Also try file storage for production persistence (development only)
+    const fileItems = fileStorage && process.env.NODE_ENV === 'development' ? fileStorage.loadGalleryItems() : [];
     console.log(`📁 Fetched ${fileItems.length} items from file storage`);
     
     // Combine all items (database first, then file, then memory)
@@ -92,12 +103,12 @@ export async function GET() {
     const memoryItems = getMemoryItems();
     console.log(`💾 Fetched ${memoryItems.length} items from memory storage`);
     
-    // Also try file storage for production persistence
-    const fileItems = getFileItems();
+    // Also try file storage for production persistence (development only)
+    const fileItems = fileStorage && process.env.NODE_ENV === 'development' ? fileStorage.loadGalleryItems() : [];
     console.log(`📁 Fetched ${fileItems.length} items from file storage`);
     
-    // Also try to recover from permanent backups
-    const backupItems = recoverFromBackups();
+    // Also try to recover from permanent backups (development only)
+    const backupItems = robustStorage && process.env.NODE_ENV === 'development' ? robustStorage.recoverFromBackups() : [];
     console.log(`💾 Fetched ${backupItems.length} items from permanent backups`);
     
     // Combine all sources (ImageKit first, then file storage, then memory, then backups)
@@ -196,39 +207,102 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
     const filename = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
     
-    const storageResult = await saveToAllStorageSystems(buffer, filename, {
-      title,
-      date_uploaded: new Date().toISOString(),
-      downloads: 0,
-      author: user.username,
-      tags: tagsArray,
-      chill_level: chillLevel,
-      user_id: user.id
-    });
+    if (robustStorage && process.env.NODE_ENV === 'development') {
+      // Use robust storage in development
+      const storageResult = await robustStorage.saveToAllStorageSystems(buffer, filename, {
+        title,
+        date_uploaded: new Date().toISOString(),
+        downloads: 0,
+        author: user.username,
+        tags: tagsArray,
+        chill_level: chillLevel,
+        user_id: user.id
+      });
 
-    if (storageResult.success) {
-      console.log('✅ Photo saved successfully to multiple storage systems');
-      
-      // Add storage info to response
-      const responseItem = {
-        ...storageResult.finalItem,
-        storage_info: {
-          total_attempts: storageResult.results.length,
-          successful_saves: storageResult.results.filter(r => r.success).length,
-          storage_locations: storageResult.results.filter(r => r.success).map(r => r.location)
-        }
-      };
-      
-      return NextResponse.json(responseItem, { status: 201 });
+      if (storageResult.success) {
+        console.log('✅ Photo saved successfully to multiple storage systems');
+        
+        // Add storage info to response
+        const responseItem = {
+          ...storageResult.finalItem,
+          storage_info: {
+            total_attempts: storageResult.results.length,
+            successful_saves: storageResult.results.filter((r: any) => r.success).length,
+            storage_locations: storageResult.results.filter((r: any) => r.success).map((r: any) => r.location)
+          }
+        };
+        
+        return NextResponse.json(responseItem, { status: 201 });
+      } else {
+        console.error('❌ All storage systems failed');
+        return NextResponse.json(
+          { 
+            error: 'Failed to save image to any storage system',
+            storage_results: storageResult.results
+          },
+          { status: 500 }
+        );
+      }
     } else {
-      console.error('❌ All storage systems failed');
-      return NextResponse.json(
-        { 
-          error: 'Failed to save image to any storage system',
-          storage_results: storageResult.results
-        },
-        { status: 500 }
-      );
+      // Production: Use ImageKit + Database only
+      let imageUrl: string;
+      
+      try {
+        console.log('🔄 Attempting ImageKit upload...');
+        const uploadResult = await uploadImageToImageKit(buffer, filename);
+        imageUrl = uploadResult.url;
+        console.log('✅ Image uploaded to ImageKit:', uploadResult.fileId);
+      } catch (imagekitError: any) {
+        console.error('❌ ImageKit upload failed, using base64 fallback:', imagekitError?.message || imagekitError);
+        
+        // Fallback to base64 storage
+        if (buffer.length > 2000000) { // 2MB limit for base64
+          return NextResponse.json(
+            { error: 'Image is too large for storage. Please use an image smaller than 2MB.' },
+            { status: 400 }
+          );
+        }
+        
+        const base64 = buffer.toString('base64');
+        const mimeType = file.type;
+        imageUrl = `data:${mimeType};base64,${base64}`;
+        console.log('💾 Using base64 storage as fallback');
+      }
+
+      // Save to database
+      try {
+        const savedItem = await createGalleryItem(
+          title,
+          imageUrl,
+          user.username,
+          tagsArray,
+          chillLevel,
+          user.id
+        );
+        
+        console.log('✅ Successfully saved to database');
+        return NextResponse.json(savedItem, { status: 201 });
+      } catch (dbError: any) {
+        console.error('❌ Database save failed:', dbError);
+        
+        // Fallback to memory storage
+        const memoryItem = addGalleryItem({
+          title,
+          image_url: imageUrl,
+          date_uploaded: new Date().toISOString(),
+          downloads: 0,
+          author: user.username,
+          tags: tagsArray,
+          chill_level: chillLevel,
+          user_id: user.id
+        });
+        
+        console.log('💾 Saved to memory storage as fallback');
+        return NextResponse.json({
+          ...memoryItem,
+          message: 'Image saved (database temporarily unavailable)'
+        }, { status: 201 });
+      }
     }
 
   } catch (error) {

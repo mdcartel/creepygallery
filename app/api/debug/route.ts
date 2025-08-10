@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server';
 import { getAllGalleryItems } from '../../../lib/gallery';
 import { getAllGalleryItems as getMemoryItems } from '../../../lib/memory-storage';
-import { loadGalleryItems as getFileItems } from '../../../lib/file-storage';
+// Import file storage conditionally
+let fileStorage: any = null;
+if (process.env.NODE_ENV === 'development') {
+  try {
+    fileStorage = require('../../../lib/file-storage');
+  } catch (error) {
+    console.log('File storage not available');
+  }
+}
 import { getDatabaseStatus } from '../../../lib/db';
 
 export async function GET() {
@@ -38,12 +46,16 @@ export async function GET() {
     debug.sources.memory.error = error.message;
   }
 
-  // Check file items
-  try {
-    const fileItems = getFileItems();
-    debug.sources.file.items = fileItems.length;
-  } catch (error: any) {
-    debug.sources.file.error = error.message;
+  // Check file items (development only)
+  if (fileStorage && process.env.NODE_ENV === 'development') {
+    try {
+      const fileItems = fileStorage.loadGalleryItems();
+      debug.sources.file.items = fileItems.length;
+    } catch (error: any) {
+      debug.sources.file.error = error.message;
+    }
+  } else {
+    debug.sources.file.error = 'File storage not available in production';
   }
 
   return NextResponse.json(debug);

@@ -1,5 +1,15 @@
-import fs from 'fs';
-import path from 'path';
+// Only import fs in development
+let fs: any = null;
+let path: any = null;
+
+if (process.env.NODE_ENV === 'development') {
+  try {
+    fs = require('fs');
+    path = require('path');
+  } catch (error) {
+    console.log('File system not available in production');
+  }
+}
 import { uploadImageToImageKit } from './imagekit';
 import { createGalleryItem } from './gallery';
 import { addGalleryItem } from './memory-storage';
@@ -27,13 +37,26 @@ interface StorageResult {
 const BACKUP_DIR = path.join(process.cwd(), 'permanent-backups');
 
 function ensureBackupDir() {
-  if (!fs.existsSync(BACKUP_DIR)) {
-    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+  if (!fs || !path || process.env.NODE_ENV !== 'development') {
+    return;
+  }
+  
+  try {
+    if (!fs.existsSync(BACKUP_DIR)) {
+      fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    }
+  } catch (error) {
+    console.log('❌ Cannot create backup directory in production');
   }
 }
 
-// Save individual photo as separate file for maximum safety
+// Save individual photo as separate file for maximum safety (development only)
 function savePhotoBackup(item: GalleryItem, id: string | number): void {
+  if (!fs || !path || process.env.NODE_ENV !== 'development') {
+    console.log('📁 Photo backup skipped (production environment)');
+    return;
+  }
+  
   try {
     ensureBackupDir();
     const filename = `photo_${id}_${Date.now()}.json`;
@@ -202,36 +225,45 @@ export async function saveToAllStorageSystems(
     });
   }
 
-  // 5. Always save permanent backup files
-  try {
-    ensureBackupDir();
-    
-    // Save as individual JSON file
-    const timestamp = Date.now();
-    const individualFile = path.join(BACKUP_DIR, `upload_${timestamp}.json`);
-    fs.writeFileSync(individualFile, JSON.stringify({
-      ...fullItem,
-      upload_timestamp: new Date().toISOString(),
-      storage_results: results
-    }, null, 2));
-    
-    // Also save the raw image data
-    const imageFile = path.join(BACKUP_DIR, `image_${timestamp}.dat`);
-    fs.writeFileSync(imageFile, buffer);
-    
-    console.log('💾 Permanent backup files created');
-    results.push({
-      success: true,
-      location: 'Permanent Backup Files',
-      id: timestamp
-    });
-    
-  } catch (error: any) {
-    console.error('❌ Permanent backup failed:', error.message);
+  // 5. Save permanent backup files (development only)
+  if (fs && path && process.env.NODE_ENV === 'development') {
+    try {
+      ensureBackupDir();
+      
+      // Save as individual JSON file
+      const timestamp = Date.now();
+      const individualFile = path.join(BACKUP_DIR, `upload_${timestamp}.json`);
+      fs.writeFileSync(individualFile, JSON.stringify({
+        ...fullItem,
+        upload_timestamp: new Date().toISOString(),
+        storage_results: results
+      }, null, 2));
+      
+      // Also save the raw image data
+      const imageFile = path.join(BACKUP_DIR, `image_${timestamp}.dat`);
+      fs.writeFileSync(imageFile, buffer);
+      
+      console.log('💾 Permanent backup files created');
+      results.push({
+        success: true,
+        location: 'Permanent Backup Files',
+        id: timestamp
+      });
+      
+    } catch (error: any) {
+      console.error('❌ Permanent backup failed:', error.message);
+      results.push({
+        success: false,
+        location: 'Permanent Backup Files',
+        error: error.message
+      });
+    }
+  } else {
+    console.log('📁 Permanent backup skipped (production environment)');
     results.push({
       success: false,
       location: 'Permanent Backup Files',
-      error: error.message
+      error: 'Not available in production'
     });
   }
 
@@ -251,8 +283,13 @@ export async function saveToAllStorageSystems(
   };
 }
 
-// Recovery function to load from all backup sources
+// Recovery function to load from all backup sources (development only)
 export function recoverFromBackups(): GalleryItem[] {
+  if (!fs || !path || process.env.NODE_ENV !== 'development') {
+    console.log('📁 Backup recovery not available in production');
+    return [];
+  }
+  
   const recoveredItems: GalleryItem[] = [];
   
   try {
@@ -261,7 +298,7 @@ export function recoverFromBackups(): GalleryItem[] {
     if (fs.existsSync(BACKUP_DIR)) {
       const files = fs.readdirSync(BACKUP_DIR);
       
-      files.forEach(file => {
+      files.forEach((file: string) => {
         if (file.endsWith('.json') && (file.startsWith('photo_') || file.startsWith('upload_'))) {
           try {
             const filepath = path.join(BACKUP_DIR, file);

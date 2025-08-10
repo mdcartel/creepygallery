@@ -1,6 +1,16 @@
 // Simple file-based storage for persistence
-import fs from 'fs';
-import path from 'path';
+// Only import fs in development
+let fs: any = null;
+let path: any = null;
+
+if (process.env.NODE_ENV === 'development') {
+  try {
+    fs = require('fs');
+    path = require('path');
+  } catch (error) {
+    console.log('File system not available in production');
+  }
+}
 
 const STORAGE_FILE = path.join(process.cwd(), 'data', 'gallery-items.json');
 
@@ -16,15 +26,28 @@ interface StoredImage {
   user_id: string;
 }
 
-// Ensure data directory exists
+// Ensure data directory exists (development only)
 function ensureDataDir() {
-  const dataDir = path.dirname(STORAGE_FILE);
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
+  if (!fs || !path || process.env.NODE_ENV !== 'development') {
+    return;
+  }
+  
+  try {
+    const dataDir = path.dirname(STORAGE_FILE);
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+  } catch (error) {
+    console.log('❌ Cannot create data directory in production');
   }
 }
 
 export function saveGalleryItems(items: StoredImage[]): void {
+  if (!fs || !path || process.env.NODE_ENV !== 'development') {
+    console.log('💾 File storage save skipped (production environment)');
+    return;
+  }
+  
   try {
     ensureDataDir();
     fs.writeFileSync(STORAGE_FILE, JSON.stringify(items, null, 2));
@@ -35,6 +58,11 @@ export function saveGalleryItems(items: StoredImage[]): void {
 }
 
 export function loadGalleryItems(): StoredImage[] {
+  if (!fs || !path || process.env.NODE_ENV !== 'development') {
+    console.log('📁 File storage not available in production');
+    return [];
+  }
+  
   try {
     if (fs.existsSync(STORAGE_FILE)) {
       const data = fs.readFileSync(STORAGE_FILE, 'utf8');
