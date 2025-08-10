@@ -18,13 +18,16 @@ try {
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false },
-    connectionTimeoutMillis: 30000,
-    idleTimeoutMillis: 60000,
-    max: 5,
-    statement_timeout: 30000,
-    query_timeout: 30000
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 30000,
+    max: 3,
+    min: 0,
+    statement_timeout: 10000,
+    query_timeout: 10000,
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10000
   });
-  
+
   // Test connection with retry logic
   async function testConnection(retries = 3) {
     for (let i = 0; i < retries; i++) {
@@ -48,7 +51,7 @@ try {
       }
     }
   }
-  
+
   testConnection();
 } catch (error) {
   console.warn('⚠️ Database initialization failed, using in-memory storage:', error);
@@ -62,7 +65,7 @@ export async function sqlQuery<T = any>(strings: TemplateStringsArray, ...values
     let client;
     try {
       client = await pool.connect();
-      
+
       // Build the query string
       let query = '';
       for (let i = 0; i < strings.length; i++) {
@@ -71,7 +74,7 @@ export async function sqlQuery<T = any>(strings: TemplateStringsArray, ...values
           query += `$${i + 1}`;
         }
       }
-      
+
       const result = await client.query(query, values);
       return result.rows;
     } catch (error) {
@@ -84,12 +87,12 @@ export async function sqlQuery<T = any>(strings: TemplateStringsArray, ...values
       }
     }
   }
-  
+
   // In-memory fallback implementation
   return new Promise((resolve) => {
     try {
       const query = strings.join('?').toLowerCase();
-      
+
       if (query.includes('insert into users')) {
         const [id, email, username, password] = values;
         const newUser = {
@@ -99,7 +102,7 @@ export async function sqlQuery<T = any>(strings: TemplateStringsArray, ...values
           password,
           created_at: new Date()
         };
-        
+
         fallbackDatabase.users.push(newUser);
         resolve([newUser] as T[]);
       } else if (query.includes('select * from users where email')) {
@@ -129,18 +132,18 @@ export async function sqlQuery<T = any>(strings: TemplateStringsArray, ...values
           date_uploaded: new Date(),
           downloads: 0
         };
-        
+
         fallbackDatabase.gallery_items.unshift(newItem); // Add to beginning
-        
+
         // Keep only last 50 items to prevent memory issues
         if (fallbackDatabase.gallery_items.length > 50) {
           fallbackDatabase.gallery_items = fallbackDatabase.gallery_items.slice(0, 50);
         }
-        
+
         resolve([newItem] as T[]);
       } else if (query.includes('select * from gallery_items')) {
         // Handle gallery items retrieval
-        const items = [...fallbackDatabase.gallery_items].sort((a, b) => 
+        const items = [...fallbackDatabase.gallery_items].sort((a, b) =>
           new Date(b.date_uploaded).getTime() - new Date(a.date_uploaded).getTime()
         );
         resolve(items as T[]);
@@ -155,7 +158,7 @@ export async function sqlQuery<T = any>(strings: TemplateStringsArray, ...values
       } else if (query.includes('delete from gallery_items')) {
         // Handle gallery item deletion
         const [id, user_id] = values;
-        const index = fallbackDatabase.gallery_items.findIndex(item => 
+        const index = fallbackDatabase.gallery_items.findIndex(item =>
           item.id === id && item.user_id === user_id
         );
         if (index !== -1) {
@@ -178,7 +181,7 @@ export async function sqlQuery<T = any>(strings: TemplateStringsArray, ...values
 // Initialize database tables (only if database is available)
 async function initializeDatabase() {
   if (!databaseAvailable || !pool) return;
-  
+
   try {
     await sqlQuery`
       CREATE TABLE IF NOT EXISTS users (
@@ -189,7 +192,7 @@ async function initializeDatabase() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
-    
+
     await sqlQuery`
       CREATE TABLE IF NOT EXISTS gallery_items (
         id SERIAL PRIMARY KEY,
@@ -203,7 +206,7 @@ async function initializeDatabase() {
         user_id VARCHAR(255) REFERENCES users(id)
       )
     `;
-    
+
     console.log('✅ Database tables initialized successfully');
   } catch (error) {
     console.error('❌ Error initializing database:', error);

@@ -1,6 +1,12 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { sqlQuery } from './db';
+import { 
+  createUserInFile, 
+  findUserByEmailInFile, 
+  findUserByIdInFile, 
+  verifyUserPassword 
+} from './user-file-storage';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -26,7 +32,7 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword);
+  return verifyUserPassword(password, hashedPassword);
 }
 
 export function generateToken(user: User): string {
@@ -58,38 +64,92 @@ export function verifyToken(token: string): User | null {
 }
 
 export async function createUser(email: string, username: string, password: string): Promise<UserWithPassword> {
-  const id = Date.now().toString();
-  const hashedPassword = await hashPassword(password);
-  
-  await sqlQuery`
-    INSERT INTO users (id, email, username, password) 
-    VALUES (${id}, ${email.toLowerCase()}, ${username}, ${hashedPassword})
-  `;
-  
-  return {
-    id,
-    email: email.toLowerCase(),
-    username,
-    password: hashedPassword,
-    createdAt: new Date()
-  };
+  try {
+    // Try database first
+    const id = Date.now().toString();
+    const hashedPassword = await hashPassword(password);
+    
+    await sqlQuery`
+      INSERT INTO users (id, email, username, password) 
+      VALUES (${id}, ${email.toLowerCase()}, ${username}, ${hashedPassword})
+    `;
+    
+    console.log('✅ User created in database');
+    return {
+      id,
+      email: email.toLowerCase(),
+      username,
+      password: hashedPassword,
+      createdAt: new Date()
+    };
+  } catch (dbError) {
+    console.log('❌ Database failed, using file storage for user creation');
+    
+    // Fallback to file storage
+    const fileUser = await createUserInFile(email, username, password);
+    return {
+      ...fileUser,
+      createdAt: new Date(fileUser.createdAt)
+    };
+  }
 }
 
 export async function findUserByEmail(email: string): Promise<UserWithPassword | null> {
-  const users = await sqlQuery<UserWithPassword>`
-    SELECT * FROM users WHERE email = ${email.toLowerCase()}
-  `;
+  try {
+    // Try database first
+    const users = await sqlQuery<UserWithPassword>`
+      SELECT * FROM users WHERE email = ${email.toLowerCase()}
+    `;
+    
+    if (users[0]) {
+      console.log('✅ User found in database');
+      return users[0];
+    }
+  } catch (dbError) {
+    console.log('❌ Database failed, checking file storage');
+  }
   
-  return users[0] || null;
+  // Fallback to file storage
+  const fileUser = findUserByEmailInFile(email);
+  if (fileUser) {
+    console.log('✅ User found in file storage');
+    return {
+      ...fileUser,
+      createdAt: new Date(fileUser.createdAt)
+    };
+  }
+  
+  return null;
 }
 
 export async function findUserById(id: string): Promise<User | null> {
-  const users = await sqlQuery<UserWithPassword>`
-    SELECT id, email, username, created_at as "createdAt" 
-    FROM users WHERE id = ${id}
-  `;
+  try {
+    // Try database first
+    const users = await sqlQuery<UserWithPassword>`
+      SELECT id, email, username, created_at as "createdAt" 
+      FROM users WHERE id = ${id}
+    `;
+    
+    if (users[0]) {
+      console.log('✅ User found in database');
+      return users[0];
+    }
+  } catch (dbError) {
+    console.log('❌ Database failed, checking file storage');
+  }
   
-  return users[0] || null;
+  // Fallback to file storage
+  const fileUser = findUserByIdInFile(id);
+  if (fileUser) {
+    console.log('✅ User found in file storage');
+    const { password, ...userWithoutPassword } = fileUser;
+    return {
+      ...userWithoutPassword,
+      createdAt: new Date(fileUser.createdAt)
+    };
+  }
+  
+  return null;
 }
 
 export function validateEmail(email: string): boolean {
