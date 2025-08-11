@@ -107,7 +107,6 @@ export async function getAllImagesFromImageKit(): Promise<any[]> {
     
     const result = await getImageKit().listFiles({
       path: '/creepy-gallery',
-      searchQuery: 'tags="creepy-gallery"',
       limit: 50,
       sort: 'DESC_CREATED'
     });
