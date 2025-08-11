@@ -1,14 +1,13 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { sqlQuery } from './db';
-// Import file storage only in development
+// Import file storage - always try to load it
 let fileStorageModule: any = null;
-if (process.env.NODE_ENV === 'development') {
-  try {
-    fileStorageModule = require('./user-file-storage.js');
-  } catch (error) {
-    console.log('File storage not available in production');
-  }
+try {
+  fileStorageModule = require('./user-file-storage.js');
+  console.log('✅ File storage module loaded successfully');
+} catch (error) {
+  console.log('❌ File storage module not available:', error);
 }
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -88,8 +87,9 @@ export async function createUser(email: string, username: string, password: stri
   } catch (dbError) {
     console.log('❌ Database failed, checking for file storage fallback');
     
-    // Fallback to file storage (development only)
-    if (fileStorageModule && process.env.NODE_ENV === 'development') {
+    // Fallback to file storage
+    if (fileStorageModule) {
+      console.log('🔄 Using file storage fallback for user creation');
       const fileUser = await fileStorageModule.createUserInFile(email, username, password);
       return {
         ...fileUser,
@@ -97,7 +97,7 @@ export async function createUser(email: string, username: string, password: stri
       };
     }
     
-    // In production, throw the original error
+    // If no fallback available, throw error
     throw new Error('Database unavailable and no fallback storage configured');
   }
 }
@@ -117,8 +117,9 @@ export async function findUserByEmail(email: string): Promise<UserWithPassword |
     console.log('❌ Database failed, checking file storage');
   }
   
-  // Fallback to file storage (development only)
-  if (fileStorageModule && process.env.NODE_ENV === 'development') {
+  // Fallback to file storage
+  if (fileStorageModule) {
+    console.log('🔄 Checking file storage for user');
     const fileUser = fileStorageModule.findUserByEmailInFile(email);
     if (fileUser) {
       console.log('✅ User found in file storage');
