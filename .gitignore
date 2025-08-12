@@ -45,3 +45,6 @@ next-env.d.ts
 
 # kiro specs (development only)
 /.kiro/
+
+# uploads backup folder (hidden)
+/uploads/

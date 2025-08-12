@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Frontend Fetch</title>
+</head>
+<body>
+    <h1>Testing Gallery API</h1>
+    <div id="result"></div>
+    <div id="images"></div>
+
+    <script>
+        async function testFetch() {
+            try {
+                console.log('🔄 Fetching gallery items...');
+                const response = await fetch('/api/gallery?t=' + Date.now(), {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache'
+                    }
+                });
+                
+                console.log('📡 Response status:', response.status);
+                
+                if (response.ok) {
+                    const items = await response.json();
+                    console.log('📸 Gallery items:', items);
+                    
+                    document.getElementById('result').innerHTML = `
+                        <h2>✅ Success!</h2>
+                        <p>Found ${items.length} images</p>
+                        <pre>${JSON.stringify(items, null, 2)}</pre>
+                    `;
+                    
+                    // Display images
+                    const imagesDiv = document.getElementById('images');
+                    items.forEach(item => {
+                        const img = document.createElement('img');
+                        img.src = item.image_url;
+                        img.style.maxWidth = '200px';
+                        img.style.margin = '10px';
+                        img.style.border = '1px solid #ccc';
+                        img.alt = item.title;
+                        img.onload = () => console.log('✅ Image loaded:', item.title);
+                        img.onerror = () => console.error('❌ Image failed to load:', item.title);
+                        imagesDiv.appendChild(img);
+                    });
+                } else {
+                    console.error('❌ Response not ok:', response.status);
+                    document.getElementById('result').innerHTML = `
+                        <h2>❌ Error</h2>
+                        <p>Status: ${response.status}</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Fetch error:', error);
+                document.getElementById('result').innerHTML = `
+                    <h2>❌ Fetch Error</h2>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        // Test on page load
+        testFetch();
+    </script>
+</body>
+</html>

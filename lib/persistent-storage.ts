@@ -2,6 +2,7 @@
 import { uploadImageToImageKit } from './imagekit';
 import { createGalleryItem } from './gallery';
 import { addGalleryItem } from './memory-storage';
+import { saveImageToUploads, getAllImagesFromUploads } from './uploads-backup';
 
 interface GalleryItem {
   id?: number | string;
@@ -131,7 +132,40 @@ export async function saveImagePermanently(
     });
   }
 
-  // Step 4: Save to localStorage (browser-side persistence)
+  // Step 4: Save to hidden uploads folder (development only)
+  try {
+    const uploadsResult = saveImageToUploads(buffer, filename, {
+      title: fullItem.title,
+      author: fullItem.author,
+      tags: fullItem.tags,
+      chill_level: fullItem.chill_level,
+      user_id: fullItem.user_id
+    });
+    
+    if (uploadsResult.success) {
+      console.log('✅ Saved to uploads folder:', uploadsResult.filename);
+      results.push({
+        success: true,
+        location: 'Uploads Folder',
+        id: uploadsResult.id
+      });
+    } else {
+      results.push({
+        success: false,
+        location: 'Uploads Folder',
+        error: uploadsResult.error
+      });
+    }
+  } catch (error: any) {
+    console.error('❌ Uploads folder save failed:', error.message);
+    results.push({
+      success: false,
+      location: 'Uploads Folder',
+      error: error.message
+    });
+  }
+
+  // Step 5: Save to localStorage (browser-side persistence)
   try {
     if (typeof window !== 'undefined') {
       const existingItems = JSON.parse(localStorage.getItem('gallery-backup') || '[]');
@@ -193,6 +227,15 @@ export async function recoverAllImages(): Promise<GalleryItem[]> {
     console.log(`📸 Recovered ${imagekitItems.length} images from ImageKit`);
   } catch (error) {
     console.error('❌ ImageKit recovery failed:', error);
+  }
+  
+  // Try uploads folder
+  try {
+    const uploadsItems = getAllImagesFromUploads();
+    allImages.push(...uploadsItems);
+    console.log(`📁 Recovered ${uploadsItems.length} images from uploads folder`);
+  } catch (error) {
+    console.error('❌ Uploads folder recovery failed:', error);
   }
   
   // Try localStorage

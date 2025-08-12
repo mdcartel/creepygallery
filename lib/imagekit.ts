@@ -114,7 +114,7 @@ export async function getAllImagesFromImageKit(): Promise<any[]> {
     console.log(`📸 Found ${result.length} images in ImageKit`);
     
     return result.map((file: any) => ({
-      id: file.fileId,
+      id: parseInt(file.fileId.slice(-8), 16) || Date.now(), // Convert fileId to number
       title: file.name.split('_').slice(1).join('_').replace(/\.[^/.]+$/, '') || 'Untitled',
       image_url: file.url,
       date_uploaded: file.createdAt,

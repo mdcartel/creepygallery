@@ -36,6 +36,8 @@ export default function Home() {
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+
+
   useEffect(() => {
     fetchGalleryItems();
 
@@ -81,13 +83,14 @@ export default function Home() {
           'Cache-Control': 'no-cache'
         }
       });
+      
       if (response.ok) {
         const items = await response.json();
         console.log('Gallery items fetched:', items);
         setGalleryItems(items);
       }
     } catch (error) {
-      console.error('Error fetching gallery items:', error);
+      console.error('❌ Error fetching gallery items:', error);
     } finally {
       setLoading(false);
     }
