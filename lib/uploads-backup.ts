@@ -1,9 +1,20 @@
 // Hidden uploads folder backup system
-import fs from 'fs';
-import path from 'path';
+// Only import fs in development
+let fs: any = null;
+let path: any = null;
 
-const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
-const METADATA_FILE = path.join(UPLOADS_DIR, '.metadata.json');
+if (process.env.NODE_ENV === 'development') {
+  try {
+    fs = require('fs');
+    path = require('path');
+  } catch (error) {
+    console.log('File system not available in production');
+  }
+}
+
+// Define paths only in development
+const UPLOADS_DIR = process.env.NODE_ENV === 'development' && path ? path.join(process.cwd(), 'uploads') : '';
+const METADATA_FILE = process.env.NODE_ENV === 'development' && path ? path.join(UPLOADS_DIR, '.metadata.json') : '';
 
 interface UploadMetadata {
   id: string;
@@ -21,7 +32,7 @@ interface UploadMetadata {
 
 // Ensure uploads directory exists
 function ensureUploadsDir() {
-  if (process.env.NODE_ENV !== 'development') {
+  if (!fs || !path || process.env.NODE_ENV !== 'development') {
     return false; // Only work in development
   }
   

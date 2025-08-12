@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server';
 import { getAllImagesFromUploads, getUploadsStats } from '../../../lib/uploads-backup';
 
 export async function GET() {
+  // Only work in development
+  if (process.env.NODE_ENV !== 'development') {
+    return NextResponse.json({
+      success: false,
+      message: 'Uploads backup not available in production',
+      stats: { totalUploads: 0, totalSize: 0 },
+      images: []
+    });
+  }
+
   try {
     const images = getAllImagesFromUploads();
     const stats = getUploadsStats();

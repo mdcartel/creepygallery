@@ -1,18 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+// Only import fs in development
+let fs: any = null;
+let path: any = null;
+
+if (process.env.NODE_ENV === 'development') {
+  try {
+    fs = require('fs');
+    path = require('path');
+  } catch (error) {
+    console.log('File system not available in production');
+  }
+}
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { filename: string } }
+  { params }: { params: Promise<{ filename: string }> }
 ) {
   // Only serve files in development
-  if (process.env.NODE_ENV !== 'development') {
+  if (!fs || !path || process.env.NODE_ENV !== 'development') {
     return NextResponse.json({ error: 'Not available in production' }, { status: 404 });
   }
 
   try {
-    const filename = params.filename;
+    const { filename } = await params;
     const uploadsDir = path.join(process.cwd(), 'uploads');
     const filepath = path.join(uploadsDir, filename);
     
