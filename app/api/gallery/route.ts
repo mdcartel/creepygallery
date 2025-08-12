@@ -38,10 +38,66 @@ function validateImageMagicNumbers(buffer: ArrayBuffer): boolean {
 
 export async function GET() {
   try {
-    // Use the new persistent storage system
-    const items = await recoverAllImages();
+    console.log('🔄 Gallery API called');
     
-    return NextResponse.json(items, {
+    // Try ImageKit first (simplest approach)
+    try {
+      const imagekitItems = await getAllImagesFromImageKit();
+      console.log(`📸 Found ${imagekitItems.length} items from ImageKit`);
+      
+      if (imagekitItems.length > 0) {
+        return NextResponse.json(imagekitItems, {
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'Surrogate-Control': 'no-store'
+          }
+        });
+      }
+    } catch (imagekitError) {
+      console.error('❌ ImageKit failed:', imagekitError);
+    }
+    
+    // Try database
+    try {
+      const dbItems = await getAllGalleryItems();
+      console.log(`🗄️ Found ${dbItems.length} items from database`);
+      
+      if (dbItems.length > 0) {
+        return NextResponse.json(dbItems, {
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'Surrogate-Control': 'no-store'
+          }
+        });
+      }
+    } catch (dbError) {
+      console.error('❌ Database failed:', dbError);
+    }
+    
+    // Try memory storage
+    try {
+      const memoryItems = getMemoryItems();
+      console.log(`💾 Found ${memoryItems.length} items from memory`);
+      
+      return NextResponse.json(memoryItems, {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+          'Surrogate-Control': 'no-store'
+        }
+      });
+    } catch (memoryError) {
+      console.error('❌ Memory storage failed:', memoryError);
+    }
+    
+    // Final fallback
+    console.log('📭 No items found, returning empty array');
+    return NextResponse.json([], {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
         'Pragma': 'no-cache',
@@ -49,10 +105,10 @@ export async function GET() {
         'Surrogate-Control': 'no-store'
       }
     });
-  } catch (error) {
-    console.error('❌ Error fetching images:', error);
     
-    // Final fallback to empty array
+  } catch (error) {
+    console.error('❌ Gallery API error:', error);
+    
     return NextResponse.json([], {
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',

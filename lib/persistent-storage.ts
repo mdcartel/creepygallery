@@ -2,7 +2,15 @@
 import { uploadImageToImageKit } from './imagekit';
 import { createGalleryItem } from './gallery';
 import { addGalleryItem } from './memory-storage';
-import { saveImageToUploads, getAllImagesFromUploads } from './uploads-backup';
+// Import uploads backup conditionally
+let uploadsBackup: any = null;
+if (process.env.NODE_ENV === 'development') {
+  try {
+    uploadsBackup = require('./uploads-backup');
+  } catch (error) {
+    console.log('Uploads backup not available');
+  }
+}
 
 interface GalleryItem {
   id?: number | string;
@@ -133,9 +141,9 @@ export async function saveImagePermanently(
   }
 
   // Step 4: Save to hidden uploads folder (development only)
-  if (process.env.NODE_ENV === 'development') {
+  if (uploadsBackup && process.env.NODE_ENV === 'development') {
     try {
-      const uploadsResult = saveImageToUploads(buffer, filename, {
+      const uploadsResult = uploadsBackup.saveImageToUploads(buffer, filename, {
         title: fullItem.title,
         author: fullItem.author,
         tags: fullItem.tags,
@@ -234,9 +242,9 @@ export async function recoverAllImages(): Promise<GalleryItem[]> {
   }
   
   // Try uploads folder (development only)
-  if (process.env.NODE_ENV === 'development') {
+  if (uploadsBackup && process.env.NODE_ENV === 'development') {
     try {
-      const uploadsItems = getAllImagesFromUploads();
+      const uploadsItems = uploadsBackup.getAllImagesFromUploads();
       allImages.push(...uploadsItems);
       console.log(`📁 Recovered ${uploadsItems.length} images from uploads folder`);
     } catch (error) {
