@@ -149,6 +149,41 @@ export default function AdminPanel() {
     }
   };
 
+  const clearAllUsers = async () => {
+    if (!confirm('🚨 EXTREME WARNING: This will delete ALL USERS and ALL GALLERY ITEMS. This is a complete system reset. This action cannot be undone. Are you absolutely sure?')) {
+      return;
+    }
+
+    if (!confirm('💀 FINAL WARNING: You are about to permanently delete EVERYTHING - all users, all gallery items, all data. This will reset the entire system to empty. Continue?')) {
+      return;
+    }
+
+    const confirmation = prompt('Type "RESET EVERYTHING" to confirm you want to clear all users and data:');
+    if (confirmation !== 'RESET EVERYTHING') {
+      alert('System reset cancelled - confirmation text did not match.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/clear-users', {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert('✅ ' + data.message);
+        fetchUsers();
+        fetchGalleryItems();
+      } else {
+        alert('❌ Failed to clear users: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error clearing users:', error);
+      alert('❌ Error clearing users');
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-950 flex items-center justify-center">
@@ -259,12 +294,23 @@ export default function AdminPanel() {
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-red-400">User Management</h2>
-              <button
-                onClick={fetchUsers}
-                className="bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 px-4 py-2 rounded-lg transition-all duration-300"
-              >
-                Refresh
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={fetchUsers}
+                  className="bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 px-4 py-2 rounded-lg transition-all duration-300"
+                >
+                  Refresh
+                </button>
+                {users.length > 0 && (
+                  <button
+                    onClick={clearAllUsers}
+                    className="bg-red-800/30 hover:bg-red-800/50 text-red-300 hover:text-red-200 px-4 py-2 rounded-lg transition-all duration-300 border border-red-700/50 flex items-center gap-2"
+                  >
+                    <FaTrash className="w-4 h-4" />
+                    Clear All Users
+                  </button>
+                )}
+              </div>
             </div>
 
             {loading ? (
