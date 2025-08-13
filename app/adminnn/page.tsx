@@ -29,12 +29,14 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'users' | 'gallery'>('users');
+  const [dbStatus, setDbStatus] = useState<any>(null);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (username === 'mdcartel' && password === 'markd1') {
       setIsAuthenticated(true);
       setError('');
+      fetchDbStatus();
       fetchUsers();
       fetchGalleryItems();
     } else {
@@ -54,6 +56,36 @@ export default function AdminPanel() {
       console.error('Error fetching users:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchDbStatus = async () => {
+    try {
+      const response = await fetch('/api/admin/debug');
+      if (response.ok) {
+        const data = await response.json();
+        setDbStatus(data.debug);
+      }
+    } catch (error) {
+      console.error('Error fetching DB status:', error);
+    }
+  };
+
+  const migrateDatabase = async () => {
+    try {
+      const response = await fetch('/api/admin/migrate', { method: 'POST' });
+      const data = await response.json();
+      
+      if (data.success) {
+        alert(data.message);
+        fetchDbStatus();
+        fetchUsers();
+      } else {
+        alert('Migration failed: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error migrating:', error);
+      alert('Migration error');
     }
   };
 
@@ -191,6 +223,35 @@ export default function AdminPanel() {
           </div>
         </div>
       </div>
+
+      {/* Database Status */}
+      {dbStatus && (
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className={`p-4 rounded-lg border ${
+            dbStatus.databaseStatus.databaseAvailable 
+              ? 'bg-green-900/20 border-green-500/30 text-green-400' 
+              : 'bg-red-900/20 border-red-500/30 text-red-400'
+          }`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <strong>Database Status:</strong> {
+                  dbStatus.databaseStatus.databaseAvailable ? 'Connected' : 'Disconnected'
+                } | 
+                <strong> Users in DB:</strong> {dbStatus.userCount} | 
+                <strong> Fallback Users:</strong> {dbStatus.databaseStatus.fallbackUsers}
+              </div>
+              {!dbStatus.databaseStatus.databaseAvailable && (
+                <button
+                  onClick={migrateDatabase}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all duration-300"
+                >
+                  Fix Database
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Navigation Tabs */}
       <div className="max-w-7xl mx-auto px-4 py-6">

@@ -60,6 +60,19 @@ try {
 
 // Template literal tag function for SQL queries with fallback
 export async function sqlQuery<T = any>(strings: TemplateStringsArray, ...values: any[]): Promise<T[]> {
+  // Always try to reconnect if database was marked as unavailable
+  if (!databaseAvailable && pool) {
+    try {
+      console.log('🔄 Retrying database connection...');
+      const testClient = await pool.connect();
+      testClient.release();
+      databaseAvailable = true;
+      console.log('✅ Database reconnected successfully');
+    } catch (error) {
+      console.log('❌ Database still unavailable:', error);
+    }
+  }
+
   if (databaseAvailable && pool) {
     // Try database first
     let client;
@@ -77,8 +90,8 @@ export async function sqlQuery<T = any>(strings: TemplateStringsArray, ...values
 
       const result = await client.query(query, values);
       return result.rows;
-    } catch (error) {
-      console.error('Database query error, falling back to in-memory:', error);
+    } catch (error: any) {
+      console.error('Database query error, falling back to in-memory:', error.message);
       databaseAvailable = false;
       // Fall through to in-memory implementation
     } finally {
