@@ -276,141 +276,45 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8">
+            {/* Pinterest-style Masonry Grid */}
+            <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
               {galleryItems.map(item => (
                 <div
                   key={item.id}
-                  className="group relative"
-                  onMouseEnter={(e) => {
-                    const overlay = e.currentTarget.querySelector('.hover-overlay') as HTMLElement;
-                    if (overlay) overlay.style.opacity = '1';
-                  }}
-                  onMouseLeave={(e) => {
-                    const overlay = e.currentTarget.querySelector('.hover-overlay') as HTMLElement;
-                    if (overlay) overlay.style.opacity = '0';
-                  }}
+                  className="break-inside-avoid mb-4 group cursor-pointer"
+                  onClick={() => handleImageClick(item)}
                 >
-                  {/* Glowing border effect */}
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-800 rounded-2xl blur opacity-0 group-hover:opacity-75 transition duration-500"></div>
-
-                  <div className="relative bg-gradient-to-br from-gray-900 to-black border border-red-900/30 rounded-2xl overflow-hidden shadow-2xl hover:shadow-red-900/20 transition-all duration-500 group-hover:scale-[1.02]">
-                    <div
-                      onClick={() => handleImageClick(item)}
-                      style={{
-                        width: '100%',
-                        aspectRatio: '1',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        cursor: 'pointer',
-                        backgroundColor: '#1a1a1a'
-                      }}
-                    >
-                      {item.image_url ? (
+                  <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-red-900/20 transition-all duration-300 hover:scale-[1.02] border border-white/10 hover:border-red-500/30">
+                    {item.image_url ? (
+                      <div className="relative">
                         <img
                           src={item.image_url}
                           alt={item.title}
-                          style={{
-                            position: 'absolute',
-                            top: '0',
-                            left: '0',
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            display: 'block',
-                            zIndex: '1',
-                            transition: 'transform 0.3s ease'
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'scale(1.05)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'scale(1)';
-                          }}
+                          className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
                         />
-                      ) : (
-                        <div style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          width: '100%',
-                          height: '100%',
-                          color: '#F8F8FF'
-                        }}>
-                          <FaArrowUp style={{ fontSize: '2rem', color: '#8B0000', marginBottom: '8px', transform: 'rotate(180deg)' }} />
-                          <span style={{ fontSize: '0.875rem' }}>No Image</span>
-                        </div>
-                      )}
-
-                      {/* Hover overlay */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: '0',
-                          left: '0',
-                          right: '0',
-                          bottom: '0',
-                          background: 'linear-gradient(45deg, rgba(139,0,0,0.8), rgba(0,0,0,0.9))',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          opacity: '0',
-                          transition: 'opacity 0.3s ease',
-                          zIndex: '10',
-                          pointerEvents: 'none'
-                        }}
-                        className="hover-overlay"
-                      >
-                        <div style={{
-                          color: 'white',
-                          fontSize: '0.875rem',
-                          fontWeight: '600',
-                          backgroundColor: 'rgba(139,0,0,0.9)',
-                          padding: '8px 16px',
-                          borderRadius: '8px',
-                          border: '1px solid rgba(255,255,255,0.2)',
-                          backdropFilter: 'blur(4px)',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px'
-                        }}>
-                          👁️ View
+                        
+                        {/* Subtle hover overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <div className="absolute bottom-4 left-4 right-4">
+                            <h3 className="text-white font-bold text-lg mb-1 truncate">{item.title}</h3>
+                            <p className="text-white/80 text-sm">by {item.author}</p>
+                          </div>
+                          
+                          {/* View indicator */}
+                          <div className="absolute top-4 right-4">
+                            <div className="bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+                              👁️ View
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-
-                    <div className="p-5 bg-gradient-to-t from-black/80 to-transparent">
-                      <h3 className="text-lg font-bold text-white mb-3 truncate tracking-wide">{item.title}</h3>
-
-                      <div className="flex items-center justify-between text-xs text-gray-400 mb-3">
-                        <span className="flex items-center gap-2 bg-red-900/20 px-2 py-1 rounded-full border border-red-800/30">
-                          <FaUser className="w-3 h-3 text-red-400" />
-                          <span className="text-gray-300">{item.author}</span>
-                        </span>
-                        <span className="flex items-center gap-1 text-gray-500">
-                          <FaRegCalendarAlt className="w-3 h-3" />
-                          {formatDate(item.date_uploaded)}
-                        </span>
+                    ) : (
+                      <div className="aspect-square flex flex-col items-center justify-center text-gray-400 bg-gray-800/30">
+                        <FaSkull className="text-4xl text-red-500 mb-2" />
+                        <span className="text-sm">No Image</span>
                       </div>
-
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {item.tags.slice(0, 3).map((tag, index) => (
-                          <span key={index} className="bg-gradient-to-r from-red-600 to-red-700 text-xs px-3 py-1 rounded-full text-white font-medium border border-red-500/30">
-                            #{tag}
-                          </span>
-                        ))}
-                        {item.tags.length > 3 && (
-                          <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-full">+{item.tags.length - 3}</span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-400 font-medium">FEAR:</span>
-                          <SkullRating level={item.chill_level} />
-                        </div>
-                        <span className="text-xs text-gray-500 bg-gray-800/50 px-2 py-1 rounded-full">{item.downloads} views</span>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               ))}
