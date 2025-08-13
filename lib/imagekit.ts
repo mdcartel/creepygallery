@@ -102,35 +102,8 @@ export async function deleteImageFromImageKit(fileId: string): Promise<void> {
 }
 
 export async function getAllImagesFromImageKit(): Promise<any[]> {
-  try {
-    console.log('🔄 Fetching images from ImageKit...');
-    
-    const result = await getImageKit().listFiles({
-      path: '/creepy-gallery',
-      limit: 50,
-      sort: 'DESC_CREATED'
-    });
-    
-    console.log(`📸 Found ${result.length} images in ImageKit`);
-    
-    return result.map((file: any) => ({
-      id: parseInt(file.fileId.slice(-8), 16) || Date.now(), // Convert fileId to number
-      title: file.name.split('_').slice(1).join('_').replace(/\.[^/.]+$/, '') || 'Untitled',
-      image_url: file.url,
-      date_uploaded: file.createdAt,
-      downloads: 0, // Default since we can't get this from ImageKit
-      author: 'Unknown', // Default since we can't get this from ImageKit
-      tags: ['recovered'], // Tag to indicate these are recovered images
-      chill_level: 3, // Default chill level
-      user_id: 'recovered-user',
-      imagekit_file_id: file.fileId,
-      width: file.width,
-      height: file.height,
-      size: file.size,
-      filePath: file.filePath
-    }));
-  } catch (error: any) {
-    console.error('❌ Error fetching images from ImageKit:', error);
-    return [];
-  }
+  // Disabled recovery system to prevent "Unknown" authors and device filenames
+  // Only return properly uploaded images from database
+  console.log('🚫 ImageKit recovery disabled - using database only');
+  return [];
 }

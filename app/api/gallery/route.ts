@@ -40,26 +40,7 @@ export async function GET() {
   try {
     console.log('🔄 Gallery API called');
     
-    // Try ImageKit first (simplest approach)
-    try {
-      const imagekitItems = await getAllImagesFromImageKit();
-      console.log(`📸 Found ${imagekitItems.length} items from ImageKit`);
-      
-      if (imagekitItems.length > 0) {
-        return NextResponse.json(imagekitItems, {
-          headers: {
-            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-            'Surrogate-Control': 'no-store'
-          }
-        });
-      }
-    } catch (imagekitError) {
-      console.error('❌ ImageKit failed:', imagekitError);
-    }
-    
-    // Try database
+    // Try database first (proper data with custom titles and usernames)
     try {
       const dbItems = await getAllGalleryItems();
       console.log(`🗄️ Found ${dbItems.length} items from database`);
@@ -77,6 +58,9 @@ export async function GET() {
     } catch (dbError) {
       console.error('❌ Database failed:', dbError);
     }
+    
+    // Skip ImageKit recovery (disabled to prevent "Unknown" authors and device filenames)
+    console.log('🚫 ImageKit recovery skipped - using database only');
     
     // Try memory storage
     try {
