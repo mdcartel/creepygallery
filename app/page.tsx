@@ -61,6 +61,16 @@ export default function Home() {
     };
   }, []);
 
+  // Fisher-Yates shuffle algorithm for randomizing array
+  const shuffleArray = (array: GalleryItem[]) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
   const fetchGalleryItems = async () => {
     try {
       setLoading(true);
@@ -75,7 +85,9 @@ export default function Home() {
       if (response.ok) {
         const items = await response.json();
         console.log('Gallery items fetched:', items);
-        setGalleryItems(items);
+        // Randomize the order of images each time they're loaded
+        const shuffledItems = shuffleArray(items);
+        setGalleryItems(shuffledItems);
       }
     } catch (error) {
       console.error('❌ Error fetching gallery items:', error);
@@ -182,7 +194,7 @@ export default function Home() {
             CREEPY GALLERY
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 font-light tracking-wide">
-            Where nightmares become art
+            Where creepy images become art
           </p>
           <div className="flex justify-center items-center gap-4 text-red-400">
             <div className="w-16 h-px bg-gradient-to-r from-transparent to-red-500"></div>
@@ -200,7 +212,7 @@ export default function Home() {
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-900/30 border-t-red-500"></div>
               <FaSkull className="absolute inset-0 m-auto text-red-500 text-xl animate-pulse" />
             </div>
-            <p className="text-gray-300 mt-6 text-lg tracking-wide">Summoning dark visions...</p>
+            <p className="text-gray-300 mt-6 text-lg tracking-wide">Loading images...</p>
           </div>
         ) : galleryItems.length === 0 ? (
           <div className="text-center py-32">
@@ -212,7 +224,7 @@ export default function Home() {
               The Void Awaits
             </h2>
             <p className="text-gray-400 mb-12 max-w-lg mx-auto text-lg leading-relaxed">
-              No nightmares have been captured yet. Be the first to unleash your darkest visions upon this realm.
+              No creepy images have been captured yet. Be the first to share your dark visions.
             </p>
             <ClientOnly>
               {user ? (
@@ -235,7 +247,7 @@ export default function Home() {
           </div>
         ) : (
           /* Pinterest-style Masonry Grid */
-          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
+          <div className="columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
             {galleryItems.map(item => (
               <div
                 key={item.id}
