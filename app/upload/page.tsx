@@ -181,9 +181,7 @@ export default function UploadPage() {
                 className="bg-[#222] p-3 rounded border border-zinc-600 focus:border-[#B2002D] focus:outline-none text-lg"
                 required
               />
-              <div className="text-xs text-zinc-500">
-                This will be the name displayed in the gallery (not your device filename)
-              </div>
+
             </div>
 
             <div className="flex flex-col gap-2">
@@ -217,21 +215,31 @@ export default function UploadPage() {
               />
             </div>
             
-            <div className="flex flex-col gap-2">
-              <label className="text-sm text-zinc-300">Chill Level: {chillLevel}/10</label>
-              <input
-                type="range"
-                min={1}
-                max={10}
-                value={chillLevel}
-                onChange={e => setChillLevel(Number(e.target.value))}
-                className="accent-[#B2002D]"
-              />
-              <div className="text-xs text-zinc-400">
-                {chillLevel <= 3 && "Mildly unsettling"}
-                {chillLevel > 3 && chillLevel <= 6 && "Genuinely creepy"}
-                {chillLevel > 6 && chillLevel <= 8 && "Nightmare fuel"}
-                {chillLevel > 8 && "Absolutely terrifying"}
+            <div className="flex flex-col gap-3">
+              <label className="text-sm text-zinc-300 font-medium">Fear Level</label>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-zinc-400 min-w-[60px]">Mild</span>
+                <input
+                  type="range"
+                  min={1}
+                  max={5}
+                  value={chillLevel}
+                  onChange={e => setChillLevel(Number(e.target.value))}
+                  className="flex-1 accent-[#B2002D] h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                />
+                <span className="text-xs text-zinc-400 min-w-[60px] text-right">Terrifying</span>
+              </div>
+              <div className="flex justify-center">
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map(level => (
+                    <span 
+                      key={level} 
+                      className={`text-lg ${level <= chillLevel ? 'text-red-500' : 'text-gray-600'}`}
+                    >
+                      💀
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
             
@@ -261,10 +269,7 @@ export default function UploadPage() {
             )}
           </form>
           
-          <div className="mt-6 text-center text-xs text-gray-500 max-w-md">
-            <p>💡 Your custom title will be displayed in the gallery, not your device filename</p>
-            <p>🔒 Images are stored securely and permanently on our servers</p>
-          </div>
+
         </div>
       </MainContent>
     </ProtectedRoute>
