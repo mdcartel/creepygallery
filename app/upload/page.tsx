@@ -160,34 +160,49 @@ export default function UploadPage() {
   return (
     <ProtectedRoute>
       <MainContent>
-        <div className="bg-black text-[#F8F8FF] flex flex-col items-center justify-center min-h-screen">
-          <form className="flex flex-col gap-4 w-full max-w-md" onSubmit={handleSubmit}>
+        <div className="bg-black text-[#F8F8FF] flex flex-col items-center justify-center min-h-screen p-4">
+          <div className="w-full max-w-md mb-6 text-center">
+            <h1 className="font-creepy text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600 mb-2">
+              UPLOAD NIGHTMARE
+            </h1>
+            <p className="text-gray-400 text-sm">
+              Share your darkest visions with the world
+            </p>
+          </div>
+          
+          <form className="flex flex-col gap-6 w-full max-w-md bg-gray-900/30 p-6 rounded-2xl border border-red-900/30" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-2">
-              <label className="text-sm text-zinc-300">Select Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={e => setFile(e.target.files?.[0] || null)}
-                className="bg-[#222] p-2 rounded border border-zinc-600 focus:border-[#B2002D] focus:outline-none"
-                required
-              />
-              {file && (
-                <div className="text-xs text-zinc-400">
-                  Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                </div>
-              )}
-            </div>
-            
-            <div className="flex flex-col gap-2">
-              <label className="text-sm text-zinc-300">Title</label>
+              <label className="text-sm text-zinc-300 font-medium">Image Title *</label>
               <input
                 type="text"
-                placeholder="Give your cursed image a title..."
+                placeholder="Give your cursed image a unique title..."
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                className="bg-[#222] p-2 rounded border border-zinc-600 focus:border-[#B2002D] focus:outline-none"
+                className="bg-[#222] p-3 rounded border border-zinc-600 focus:border-[#B2002D] focus:outline-none text-lg"
                 required
               />
+              <div className="text-xs text-zinc-500">
+                This will be the name displayed in the gallery (not your device filename)
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className="text-sm text-zinc-300">Select Image File</label>
+              <div className="relative">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => setFile(e.target.files?.[0] || null)}
+                  className="bg-[#222] p-2 rounded border border-zinc-600 focus:border-[#B2002D] focus:outline-none w-full file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-[#B2002D] file:text-white hover:file:bg-[#8B0000]"
+                  required
+                />
+              </div>
+              {file && (
+                <div className="flex items-center gap-2 text-xs text-green-400 bg-green-900/20 p-2 rounded border border-green-800">
+                  <span>✅</span>
+                  <span>Image selected ({(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                </div>
+              )}
             </div>
             
             <div className="flex flex-col gap-2">
@@ -222,10 +237,10 @@ export default function UploadPage() {
             
             <button
               type="submit"
-              className="bg-[#B2002D] hover:bg-[#8B0000] text-[#F8F8FF] font-bold py-3 px-4 rounded transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-red-900/50 border border-red-500/30"
               disabled={loading}
             >
-              {loading ? "Summoning..." : "Upload to Gallery"}
+              {loading ? "🔮 Summoning..." : "💀 UNLEASH TO GALLERY"}
             </button>
             
             {message && (
@@ -245,6 +260,11 @@ export default function UploadPage() {
               </div>
             )}
           </form>
+          
+          <div className="mt-6 text-center text-xs text-gray-500 max-w-md">
+            <p>💡 Your custom title will be displayed in the gallery, not your device filename</p>
+            <p>🔒 Images are stored securely and permanently on our servers</p>
+          </div>
         </div>
       </MainContent>
     </ProtectedRoute>
