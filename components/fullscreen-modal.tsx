@@ -110,49 +110,60 @@ export default function FullscreenModal({ isOpen, onClose, currentItem, allItems
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-95 flex items-center justify-center">
-      {/* Close button */}
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 z-10 text-white hover:text-[#B2002D] transition-colors p-2"
-        aria-label="Close fullscreen view"
-      >
-        <FaTimes className="w-6 h-6" />
-      </button>
+      {/* Top controls */}
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+        <button
+          onClick={() => setShowMetadata(!showMetadata)}
+          className="text-white hover:text-[#B2002D] transition-colors p-2 bg-black/50 rounded-lg"
+          aria-label="Toggle image info"
+          title="Press 'i' to toggle info"
+        >
+          <span className="text-sm font-bold">i</span>
+        </button>
+        <button
+          onClick={onClose}
+          className="text-white hover:text-[#B2002D] transition-colors p-2 bg-black/50 rounded-lg"
+          aria-label="Close fullscreen view"
+        >
+          <FaTimes className="w-6 h-6" />
+        </button>
+      </div>
 
       {/* Navigation buttons */}
       {hasPrev && (
         <button
           onClick={() => onNavigate('prev')}
-          className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-[#B2002D] transition-colors p-2"
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-[#B2002D] transition-colors p-3 bg-black/50 rounded-lg"
           aria-label="Previous image"
         >
-          <FaChevronLeft className="w-8 h-8" />
+          <FaChevronLeft className="w-6 h-6" />
         </button>
       )}
 
       {hasNext && (
         <button
           onClick={() => onNavigate('next')}
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-[#B2002D] transition-colors p-2"
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 text-white hover:text-[#B2002D] transition-colors p-3 bg-black/50 rounded-lg"
           aria-label="Next image"
         >
-          <FaChevronRight className="w-8 h-8" />
+          <FaChevronRight className="w-6 h-6" />
         </button>
       )}
 
       {/* Main image container */}
-      <div className="relative w-full h-full flex items-center justify-center p-4">
+      <div className="absolute inset-0 flex items-center justify-center p-4" style={{ paddingBottom: showMetadata ? '200px' : '16px' }}>
         {currentItem.image_url ? (
-          <div className="relative max-w-full max-h-full">
-            <Image
-              src={currentItem.image_url}
-              alt={currentItem.title}
-              width={1200}
-              height={800}
-              className="max-w-full max-h-full object-contain"
-              priority
-            />
-          </div>
+          <img
+            src={currentItem.image_url}
+            alt={currentItem.title}
+            className="max-w-full max-h-full object-contain"
+            style={{ 
+              maxWidth: '100%', 
+              maxHeight: '100%',
+              width: 'auto',
+              height: 'auto'
+            }}
+          />
         ) : (
           <div className="flex flex-col items-center justify-center text-white">
             <FaSkull className="text-6xl text-[#8B0000] mb-4" />
@@ -216,7 +227,7 @@ export default function FullscreenModal({ isOpen, onClose, currentItem, allItems
       )}
 
       {/* Image counter */}
-      <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+      <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-2 rounded-lg text-sm font-medium">
         {currentIndex + 1} / {allItems.length}
       </div>
     </div>
