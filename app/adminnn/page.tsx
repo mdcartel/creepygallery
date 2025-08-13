@@ -115,6 +115,40 @@ export default function AdminPanel() {
     }
   };
 
+  const clearAllGallery = async () => {
+    if (!confirm('⚠️ WARNING: This will delete ALL gallery items from ALL users. This action cannot be undone. Are you absolutely sure?')) {
+      return;
+    }
+
+    if (!confirm('🚨 FINAL WARNING: You are about to permanently delete the entire gallery. Type YES in the next dialog to confirm.')) {
+      return;
+    }
+
+    const confirmation = prompt('Type "DELETE ALL" to confirm you want to clear the entire gallery:');
+    if (confirmation !== 'DELETE ALL') {
+      alert('Gallery clear cancelled - confirmation text did not match.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/admin/clear-gallery', {
+        method: 'DELETE'
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        alert('✅ ' + data.message);
+        fetchGalleryItems();
+      } else {
+        alert('❌ Failed to clear gallery: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Error clearing gallery:', error);
+      alert('❌ Error clearing gallery');
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-950 flex items-center justify-center">
@@ -275,12 +309,23 @@ export default function AdminPanel() {
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-red-400">Gallery Management</h2>
-              <button
-                onClick={fetchGalleryItems}
-                className="bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 px-4 py-2 rounded-lg transition-all duration-300"
-              >
-                Refresh
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={fetchGalleryItems}
+                  className="bg-gray-800/50 hover:bg-gray-700/50 text-gray-300 px-4 py-2 rounded-lg transition-all duration-300"
+                >
+                  Refresh
+                </button>
+                {galleryItems.length > 0 && (
+                  <button
+                    onClick={clearAllGallery}
+                    className="bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 px-4 py-2 rounded-lg transition-all duration-300 border border-red-600/30 flex items-center gap-2"
+                  >
+                    <FaTrash className="w-4 h-4" />
+                    Clear All Gallery
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
