@@ -19,16 +19,12 @@ interface GalleryItem {
   chill_level: number;
 }
 
-
-
 export default function Home() {
   const { user, logout } = useAuth();
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-
 
   useEffect(() => {
     fetchGalleryItems();
@@ -87,8 +83,6 @@ export default function Home() {
       setLoading(false);
     }
   };
-
-
 
   const handleImageClick = (item: GalleryItem) => {
     setSelectedItem(item);
@@ -240,50 +234,49 @@ export default function Home() {
             </ClientOnly>
           </div>
         ) : (
-          {/* Pinterest-style Masonry Grid */}
-            <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
-              {galleryItems.map(item => (
-                <div
-                  key={item.id}
-                  className="break-inside-avoid mb-4 group cursor-pointer"
-                  onClick={() => handleImageClick(item)}
-                >
-                  <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-red-900/20 transition-all duration-300 hover:scale-[1.02] border border-white/10 hover:border-red-500/30">
-                    {item.image_url ? (
-                      <div className="relative">
-                        <img
-                          src={item.image_url}
-                          alt={item.title}
-                          className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
-                          loading="lazy"
-                        />
+          /* Pinterest-style Masonry Grid */
+          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
+            {galleryItems.map(item => (
+              <div
+                key={item.id}
+                className="break-inside-avoid mb-4 group cursor-pointer"
+                onClick={() => handleImageClick(item)}
+              >
+                <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-red-900/20 transition-all duration-300 hover:scale-[1.02] border border-white/10 hover:border-red-500/30">
+                  {item.image_url ? (
+                    <div className="relative">
+                      <img
+                        src={item.image_url}
+                        alt={item.title}
+                        className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                        loading="lazy"
+                      />
+                      
+                      {/* Subtle hover overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute bottom-4 left-4 right-4">
+                          <h3 className="text-white font-bold text-lg mb-1 truncate">{item.title}</h3>
+                          <p className="text-white/80 text-sm">by {item.author}</p>
+                        </div>
                         
-                        {/* Subtle hover overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <div className="absolute bottom-4 left-4 right-4">
-                            <h3 className="text-white font-bold text-lg mb-1 truncate">{item.title}</h3>
-                            <p className="text-white/80 text-sm">by {item.author}</p>
-                          </div>
-                          
-                          {/* View indicator */}
-                          <div className="absolute top-4 right-4">
-                            <div className="bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
-                              👁️ View
-                            </div>
+                        {/* View indicator */}
+                        <div className="absolute top-4 right-4">
+                          <div className="bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+                            👁️ View
                           </div>
                         </div>
                       </div>
-                    ) : (
-                      <div className="aspect-square flex flex-col items-center justify-center text-gray-400 bg-gray-800/30">
-                        <FaSkull className="text-4xl text-red-500 mb-2" />
-                        <span className="text-sm">No Image</span>
-                      </div>
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <div className="aspect-square flex flex-col items-center justify-center text-gray-400 bg-gray-800/30">
+                      <FaSkull className="text-4xl text-red-500 mb-2" />
+                      <span className="text-sm">No Image</span>
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
-          </>
+              </div>
+            ))}
+          </div>
         )}
       </main>
 
