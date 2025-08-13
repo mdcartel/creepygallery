@@ -25,8 +25,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isWatching, setIsWatching] = useState(false);
+
 
   useEffect(() => {
     fetchGalleryItems();
@@ -52,27 +51,16 @@ export default function Home() {
       }
     };
 
-    // Creepy mouse tracking
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
 
-    // Random watching effect
-    const watchingInterval = setInterval(() => {
-      setIsWatching(Math.random() > 0.7);
-    }, 3000 + Math.random() * 5000);
 
     window.addEventListener('focus', handleFocus);
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('message', handleMessage);
-    window.addEventListener('mousemove', handleMouseMove);
 
     return () => {
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('message', handleMessage);
-      window.removeEventListener('mousemove', handleMouseMove);
-      clearInterval(watchingInterval);
     };
   }, []);
 
@@ -138,17 +126,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-950 text-[#F8F8FF] relative overflow-hidden animate-flicker">
-      {/* Creepy floating eyes that follow cursor */}
-      <div 
-        className="fixed pointer-events-none z-50 transition-all duration-1000 ease-out"
-        style={{
-          left: mousePosition.x - 20,
-          top: mousePosition.y - 20,
-          opacity: isWatching ? 0.6 : 0,
-        }}
-      >
-        <div className="text-4xl animate-pulse">👁️</div>
-      </div>
+
       
       {/* Random floating skulls */}
       <div className="fixed inset-0 pointer-events-none z-10">
