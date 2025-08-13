@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { FaUpload, FaUser, FaSignInAlt, FaUserPlus, FaSignOutAlt } from 'react-icons/fa'
-import { FaSkull } from 'react-icons/fa6'
-import { useAuth } from '../lib/auth-context'
-import ClientOnly from '../components/client-only'
-import FullscreenModal from '../components/fullscreen-modal'
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { FaUpload, FaUser, FaSignInAlt, FaUserPlus, FaSignOutAlt } from 'react-icons/fa';
+import { FaSkull } from 'react-icons/fa6';
+import { useAuth } from '../lib/auth-context';
+import ClientOnly from '../components/client-only';
+import FullscreenModal from '../components/fullscreen-modal';
 
 interface GalleryItem {
   id: number;
@@ -26,7 +26,6 @@ export default function Home() {
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-
   useEffect(() => {
     fetchGalleryItems();
 
@@ -38,7 +37,6 @@ export default function Home() {
     // Listen for storage events to refresh gallery after upload
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key === 'gallery-refresh') {
-        console.log('Gallery refresh triggered by upload');
         fetchGalleryItems();
       }
     };
@@ -46,12 +44,9 @@ export default function Home() {
     // Listen for messages from upload page
     const handleMessage = (e: MessageEvent) => {
       if (e.data === 'gallery-refresh') {
-        console.log('Gallery refresh triggered by message');
         fetchGalleryItems();
       }
     };
-
-
 
     window.addEventListener('focus', handleFocus);
     window.addEventListener('storage', handleStorageChange);
@@ -87,8 +82,6 @@ export default function Home() {
       
       if (response.ok) {
         const items = await response.json();
-        console.log('Gallery items fetched:', items);
-        // Randomize the order of images each time they're loaded
         const shuffledItems = shuffleArray(items);
         setGalleryItems(shuffledItems);
       }
@@ -126,8 +119,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-950 text-[#F8F8FF] relative overflow-hidden animate-flicker">
-
-      
       {/* Random floating skulls */}
       <div className="fixed inset-0 pointer-events-none z-10">
         {[...Array(5)].map((_, i) => (
@@ -151,6 +142,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent animate-pulse"></div>
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-red-950/30 to-transparent animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
+
       {/* Navigation Header */}
       <nav className="relative z-20 bg-black/20 backdrop-blur-sm border-b border-red-900/30">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -161,7 +153,6 @@ export default function Home() {
               <span className="font-creepy text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600 group-hover:animate-pulse">
                 CREEPY GALLERY
               </span>
-
             </Link>
 
             {/* Navigation Links */}
