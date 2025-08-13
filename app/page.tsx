@@ -25,6 +25,8 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isWatching, setIsWatching] = useState(false);
 
   useEffect(() => {
     fetchGalleryItems();
@@ -50,14 +52,27 @@ export default function Home() {
       }
     };
 
+    // Creepy mouse tracking
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    // Random watching effect
+    const watchingInterval = setInterval(() => {
+      setIsWatching(Math.random() > 0.7);
+    }, 3000 + Math.random() * 5000);
+
     window.addEventListener('focus', handleFocus);
     window.addEventListener('storage', handleStorageChange);
     window.addEventListener('message', handleMessage);
+    window.addEventListener('mousemove', handleMouseMove);
 
     return () => {
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('message', handleMessage);
+      window.removeEventListener('mousemove', handleMouseMove);
+      clearInterval(watchingInterval);
     };
   }, []);
 
@@ -122,17 +137,53 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-950 text-[#F8F8FF]">
+    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-red-950 text-[#F8F8FF] relative overflow-hidden animate-flicker">
+      {/* Creepy floating eyes that follow cursor */}
+      <div 
+        className="fixed pointer-events-none z-50 transition-all duration-1000 ease-out"
+        style={{
+          left: mousePosition.x - 20,
+          top: mousePosition.y - 20,
+          opacity: isWatching ? 0.6 : 0,
+        }}
+      >
+        <div className="text-4xl animate-pulse">👁️</div>
+      </div>
+      
+      {/* Random floating skulls */}
+      <div className="fixed inset-0 pointer-events-none z-10">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute animate-float opacity-10"
+            style={{
+              left: `${10 + i * 20}%`,
+              top: `${20 + i * 15}%`,
+              animationDelay: `${i * 2}s`,
+              animationDuration: `${8 + i * 2}s`,
+            }}
+          >
+            <FaSkull className="text-red-500 text-2xl" />
+          </div>
+        ))}
+      </div>
+
+      {/* Creepy fog effect */}
+      <div className="fixed inset-0 pointer-events-none z-5">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-red-950/30 to-transparent animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
       {/* Navigation Header */}
       <nav className="relative z-20 bg-black/20 backdrop-blur-sm border-b border-red-900/30">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 group">
-              <FaSkull className="text-2xl text-red-500 group-hover:animate-pulse" />
-              <span className="font-creepy text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
+              <FaSkull className="text-2xl text-red-500 group-hover:animate-pulse group-hover:animate-bounce" />
+              <span className="font-creepy text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600 group-hover:animate-pulse">
                 CREEPY GALLERY
               </span>
+
             </Link>
 
             {/* Navigation Links */}
@@ -190,16 +241,16 @@ export default function Home() {
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
         <div className="relative z-10 text-center py-16 px-4">
-          <h1 className="font-creepy text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-800 mb-4 tracking-wider">
+          <h1 className="font-creepy text-6xl md:text-8xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-600 to-red-800 mb-4 tracking-wider animate-pulse hover:animate-bounce">
             CREEPY GALLERY
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-8 font-light tracking-wide">
             Where creepy images become art
           </p>
           <div className="flex justify-center items-center gap-4 text-red-400">
-            <div className="w-16 h-px bg-gradient-to-r from-transparent to-red-500"></div>
+            <div className="w-16 h-px bg-gradient-to-r from-transparent to-red-500 animate-pulse"></div>
             <FaSkull className="text-2xl animate-pulse" />
-            <div className="w-16 h-px bg-gradient-to-l from-transparent to-red-500"></div>
+            <div className="w-16 h-px bg-gradient-to-l from-transparent to-red-500 animate-pulse"></div>
           </div>
         </div>
       </div>
@@ -254,18 +305,21 @@ export default function Home() {
                 className="break-inside-avoid mb-4 group cursor-pointer"
                 onClick={() => handleImageClick(item)}
               >
-                <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-red-900/20 transition-all duration-300 hover:scale-[1.02] border border-white/10 hover:border-red-500/30">
+                <div className="relative bg-white/5 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-red-900/50 transition-all duration-500 hover:scale-[1.05] border border-white/10 hover:border-red-500/50 group-hover:animate-pulse">
                   {item.image_url ? (
                     <div className="relative">
                       <img
                         src={item.image_url}
                         alt={item.title}
-                        className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-auto object-cover transition-all duration-500 group-hover:scale-110 group-hover:brightness-110 group-hover:contrast-125 group-hover:saturate-150 filter group-hover:sepia-[0.2]"
                         loading="lazy"
                       />
                       
-                      {/* Subtle hover overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      {/* Creepy glitch effect overlay */}
+                      <div className="absolute inset-0 bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-multiply animate-pulse"></div>
+                      
+                      {/* Creepy hover overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-red-900/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500">
                         <div className="absolute bottom-4 left-4 right-4">
                           <h3 className="text-white font-bold text-lg mb-1 truncate">{item.title}</h3>
                           <p className="text-white/80 text-sm">by {item.author}</p>
