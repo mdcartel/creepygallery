@@ -71,12 +71,14 @@ export async function createUser(email: string, username: string, password: stri
     const id = Date.now().toString();
     const hashedPassword = await hashPassword(password);
     
-    await sqlQuery`
+    console.log('🔄 Attempting to create user in database:', { id, email: email.toLowerCase(), username });
+    
+    const result = await sqlQuery`
       INSERT INTO users (id, email, username, password) 
       VALUES (${id}, ${email.toLowerCase()}, ${username}, ${hashedPassword})
     `;
     
-    console.log('✅ User created in database');
+    console.log('✅ User created in database, result:', result);
     return {
       id,
       email: email.toLowerCase(),
@@ -84,7 +86,8 @@ export async function createUser(email: string, username: string, password: stri
       password: hashedPassword,
       createdAt: new Date()
     };
-  } catch (dbError) {
+  } catch (dbError: any) {
+    console.error('❌ Database user creation failed:', dbError.message);
     console.log('❌ Database failed, checking for file storage fallback');
     
     // Fallback to file storage
@@ -105,15 +108,19 @@ export async function createUser(email: string, username: string, password: stri
 export async function findUserByEmail(email: string): Promise<UserWithPassword | null> {
   try {
     // Try database first
+    console.log('🔍 Looking for user in database:', email.toLowerCase());
     const users = await sqlQuery<UserWithPassword>`
       SELECT * FROM users WHERE email = ${email.toLowerCase()}
     `;
+    
+    console.log('📊 Database query result:', users.length, 'users found');
     
     if (users[0]) {
       console.log('✅ User found in database');
       return users[0];
     }
-  } catch (dbError) {
+  } catch (dbError: any) {
+    console.error('❌ Database user lookup failed:', dbError.message);
     console.log('❌ Database failed, checking file storage');
   }
   
@@ -130,6 +137,7 @@ export async function findUserByEmail(email: string): Promise<UserWithPassword |
     }
   }
   
+  console.log('❌ User not found in database or file storage');
   return null;
 }
 
