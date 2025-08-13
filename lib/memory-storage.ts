@@ -50,3 +50,9 @@ export function getAllGalleryItems(): StoredImage[] {
 export function clearGalleryItems(): void {
   galleryItems = [];
 }
+
+export function clearAllGalleryItems(): void {
+  console.log(`💾 Clearing all ${galleryItems.length} items from memory storage`);
+  galleryItems = [];
+  console.log('💾 Memory storage cleared');
+}
