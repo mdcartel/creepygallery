@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { FaArrowUp, FaRegCalendarAlt, FaUpload, FaUser, FaSignInAlt, FaUserPlus, FaSignOutAlt } from 'react-icons/fa'
+import { FaUpload, FaUser, FaSignInAlt, FaUserPlus, FaSignOutAlt } from 'react-icons/fa'
 import { FaSkull } from 'react-icons/fa6'
 import { useAuth } from '../lib/auth-context'
 import ClientOnly from '../components/client-only'
@@ -19,15 +19,7 @@ interface GalleryItem {
   chill_level: number;
 }
 
-function SkullRating({ level }: { level: number }) {
-  return (
-    <span className="flex gap-1">
-      {[0, 1, 2, 3, 4].map(i => (
-        <FaSkull key={i} className={`w-4 h-4 ${i < level ? 'text-[#8B0000] drop-shadow-glow' : 'text-zinc-700'}`} />
-      ))}
-    </span>
-  )
-}
+
 
 export default function Home() {
   const { user, logout } = useAuth();
@@ -96,14 +88,7 @@ export default function Home() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString();
-    } catch {
-      return dateString;
-    }
-  };
+
 
   const handleImageClick = (item: GalleryItem) => {
     setSelectedItem(item);
@@ -255,28 +240,7 @@ export default function Home() {
             </ClientOnly>
           </div>
         ) : (
-          <>
-            <div className="text-center mb-16">
-              <div className="relative mb-6">
-                <h2 className="font-creepy text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-red-500 to-red-600 mb-4 tracking-wider">
-                  GALLERY OF NIGHTMARES
-                </h2>
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent"></div>
-              </div>
-              <p className="text-gray-300 max-w-3xl mx-auto mb-8 text-lg leading-relaxed">
-                Venture into the abyss of human imagination. Each cursed image harbors secrets of terror,
-                mystery, and the supernatural realm beyond mortal comprehension.
-              </p>
-              <button
-                onClick={fetchGalleryItems}
-                className="group bg-gray-800/50 hover:bg-red-900/30 border border-red-800/30 hover:border-red-600/50 text-gray-300 hover:text-red-400 px-6 py-3 rounded-xl transition-all duration-300 inline-flex items-center gap-2 backdrop-blur-sm"
-              >
-                <span className="group-hover:animate-spin">🔄</span>
-                <span className="font-medium tracking-wide">REFRESH VISIONS</span>
-              </button>
-            </div>
-
-            {/* Pinterest-style Masonry Grid */}
+          {/* Pinterest-style Masonry Grid */}
             <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
               {galleryItems.map(item => (
                 <div
