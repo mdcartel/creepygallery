@@ -139,19 +139,21 @@ export async function POST(request: NextRequest) {
     
     try {
       user = verifyToken(token);
+      console.log('✅ Token verified successfully for user:', user?.username);
     } catch (error) {
-      console.error('Token verification error:', error);
+      console.error('❌ Token verification error:', error);
+      return NextResponse.json(
+        { error: 'Invalid or expired token. Please log in again.' },
+        { status: 401 }
+      );
     }
     
-    // For now, allow uploads with a default user if token fails (temporary fix)
     if (!user) {
-      console.log('Using default user due to auth issues');
-      user = {
-        id: 'demo-user',
-        username: 'Demo User',
-        email: 'demo@creepygallery.com',
-        createdAt: new Date()
-      };
+      console.error('❌ No user found after token verification');
+      return NextResponse.json(
+        { error: 'Authentication failed. Please log in again.' },
+        { status: 401 }
+      );
     }
 
     // Extract form fields
